@@ -1,0 +1,82 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --gold-primary: #D4AF37;
+    --gold-light: #F5D060;
+    --gold-glow: rgba(212, 175, 55, 0.4);
+    
+    --bg-base: #1A1A1E;
+    --shadow-light: #25252b;
+    --shadow-dark: #0f0f11;
+    
+    --text-primary: #E8E8E8;
+    --text-secondary: #9CA3AF;
+    --text-muted: #6B7280;
+    
+    --success: #22C55E;
+    --danger: #EF4444;
+
+    color: var(--text-primary);
+    background-color: var(--bg-base);
+  }
+
+  body {
+    background-color: var(--bg-base);
+    color: var(--text-primary);
+    font-family: 'DM Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .glass-panel, .neumorphic-panel {
+    background: var(--bg-base);
+    border-radius: 20px;
+    box-shadow: 12px 12px 24px var(--shadow-dark), 
+               -12px -12px 24px var(--shadow-light);
+    border: 1px solid rgba(255, 255, 255, 0.01);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .glass-panel:hover, .neumorphic-panel:hover {
+    box-shadow: 15px 15px 30px var(--shadow-dark), 
+               -15px -15px 30px var(--shadow-light);
+    transform: translateY(-2px);
+  }
+
+  .neumorphic-inset {
+    background: var(--bg-base);
+    border-radius: 12px;
+    box-shadow: inset 6px 6px 12px var(--shadow-dark), 
+                inset -6px -6px 12px var(--shadow-light);
+  }
+  
+  .neumorphic-button {
+    background: var(--bg-base);
+    box-shadow: 6px 6px 12px var(--shadow-dark), 
+               -6px -6px 12px var(--shadow-light);
+    transition: all 0.2s ease;
+  }
+  
+  .neumorphic-button:active {
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), 
+                inset -4px -4px 8px var(--shadow-light);
+  }
+  
+  .neumorphic-gold {
+    background: linear-gradient(145deg, #E6C243, #B8962A);
+    box-shadow: 8px 8px 16px rgba(212, 175, 55, 0.15), 
+               -8px -8px 16px rgba(40, 40, 40, 0.5);
+    color: #0A0A0B;
+  }
+  
+  .neumorphic-gold:active {
+    box-shadow: inset 4px 4px 10px rgba(0,0,0,0.3);
+  }
+}
