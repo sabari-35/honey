@@ -21,6 +21,7 @@ const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
 const Orders = lazy(() => import('./pages/admin/Orders'));
 const Products = lazy(() => import('./pages/admin/Products'));
 const Users = lazy(() => import('./pages/admin/Users'));
+const Reviews = lazy(() => import('./pages/admin/Reviews'));
 
 const FallbackLoader = () => (
   <div className="min-h-screen bg-obsidian flex items-center justify-center text-gold-primary font-display tracking-widest uppercase">
@@ -58,6 +59,7 @@ const router = createBrowserRouter([
       { path: 'orders', element: <PageTransition><Orders /></PageTransition> },
       { path: 'products', element: <PageTransition><Products /></PageTransition> },
       { path: 'users', element: <PageTransition><Users /></PageTransition> },
+      { path: 'reviews', element: <PageTransition><Reviews /></PageTransition> },
     ]
   }
 ]);

@@ -1,6 +1,6 @@
 import { Outlet, Link, useLocation, Navigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/authStore';
-import { Box, Users, Settings, ShoppingCart, LogOut, LayoutDashboard } from 'lucide-react';
+import { Box, Users, Settings, ShoppingCart, LogOut, LayoutDashboard, MessageSquare } from 'lucide-react';
 import { supabase } from '../../config/supabase';
 import Navbar from './Navbar';
 
@@ -36,6 +36,7 @@ export default function AdminLayout() {
     { to: '/admin/orders', label: 'Orders', icon: ShoppingCart, exact: false },
     { to: '/admin/products', label: 'Products', icon: Settings, exact: false },
     { to: '/admin/users', label: 'Users', icon: Users, exact: false },
+    { to: '/admin/reviews', label: 'Reviews', icon: MessageSquare, exact: false },
   ];
 
   return (

@@ -5,6 +5,8 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { useCartStore } from '../../store/cartStore';
 import { useUiStore } from '../../store/uiStore';
 import { supabase } from '../../config/supabase';
+import { useQuery } from '@tanstack/react-query';
+import { StarRating } from './StarRating';
 import toast from 'react-hot-toast';
 
 interface ProductCardProps {
@@ -15,6 +17,25 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
   const [product, setProduct] = useState(initialProduct);
   const { addItem } = useCartStore();
   const { setCartOpen } = useUiStore();
+
+  // Fetch aggregate rating
+  const { data: reviews } = useQuery({
+    queryKey: ['product-reviews', product.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('product_reviews')
+        .select('rating')
+        .eq('product_id', product.id);
+      if (error) throw error;
+      return data;
+    },
+    staleTime: 1000 * 60 * 5 // 5 min cache
+  });
+
+  const avgRating = reviews?.length 
+    ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
+    : 0;
+  const reviewCount = reviews?.length || 0;
 
   // Subscribe to realtime stock changes for this product
   useEffect(() => {
@@ -104,15 +125,21 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
 
         {/* Description */}
         {product.description && (
-          <p className="text-text-muted text-sm leading-relaxed line-clamp-2">{product.description}</p>
+          <p className="text-text-muted text-xs leading-relaxed line-clamp-2 italic">{product.description}</p>
         )}
 
-        {/* Stock Indicator */}
-        <div className="flex items-center gap-2">
-          <div className={`w-2 h-2 rounded-full ${isOutOfStock ? 'bg-danger' : isLowStock ? 'bg-warning animate-pulse' : 'bg-success'}`} />
-          <span className={`text-xs uppercase tracking-widest font-bold ${isOutOfStock ? 'text-danger' : isLowStock ? 'text-warning' : 'text-success'}`}>
-            {isOutOfStock ? 'Out of Stock' : isLowStock ? `Only ${product.stock_quantity} left` : `${product.stock_quantity} in stock`}
-          </span>
+        {/* Rating & Stock */}
+        <div className="flex items-center justify-between pt-2">
+          <div className="flex items-center gap-2">
+            <StarRating rating={avgRating} size={10} />
+            <span className="text-[10px] text-text-muted font-bold">({reviewCount})</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className={`w-1.5 h-1.5 rounded-full ${isOutOfStock ? 'bg-danger' : isLowStock ? 'bg-warning animate-pulse' : 'bg-success'}`} />
+            <span className={`text-[10px] uppercase tracking-widest font-black ${isOutOfStock ? 'text-danger' : isLowStock ? 'text-warning' : 'text-success'}`}>
+              {isOutOfStock ? 'Sold Out' : isLowStock ? 'Low Stock' : 'In Vault'}
+            </span>
+          </div>
         </div>
 
         {/* Add to Cart */}
