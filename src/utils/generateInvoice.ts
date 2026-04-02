@@ -1,4 +1,3 @@
-import { color } from 'framer-motion';
 import { jsPDF } from 'jspdf';
 import 'jspdf-autotable';
 

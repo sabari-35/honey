@@ -7,7 +7,7 @@ import { supabase } from '../config/supabase';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { formatCurrency } from '../utils/formatCurrency';
-import { MapPin, Phone, User, CreditCard, Banknote, QrCode, ShieldCheck } from 'lucide-react';
+import { MapPin, User, CreditCard, Banknote, QrCode, ShieldCheck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 type PaymentMethod = 'cod' | 'upi' | 'card';
@@ -254,7 +254,7 @@ export default function Checkout() {
   );
 }
 
-function PaymentOption({ id, label, icon, selected, onClick }: any) {
+function PaymentOption({ label, icon, selected, onClick }: any) {
   return (
     <button
       type="button"

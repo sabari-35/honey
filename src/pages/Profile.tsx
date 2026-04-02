@@ -148,21 +148,6 @@ export default function Profile() {
     }
   };
 
-  const handleLogout = async () => {
-    if (isLoggingOut) return;
-    setIsLoggingOut(true);
-    const toastId = toast.loading('Signing out...');
-    try {
-      await supabase.auth.signOut();
-      toast.success('Signed out successfully.', { id: toastId });
-      navigate('/login');
-    } catch {
-      toast.error('Sign out failed.', { id: toastId });
-    } finally {
-      setIsLoggingOut(false);
-    }
-  };
-
   if (!user) {
     return (
       <div className="min-h-screen pt-28 flex items-center justify-center">
