@@ -4,7 +4,7 @@ import { supabase } from '../../config/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { StarRating } from './StarRating';
 import { Button } from '../ui/Button';
-import { MessageSquare, Calendar, User } from 'lucide-react';
+import { MessageSquare, Calendar, User, CornerDownRight } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface ReviewSectionProps {
@@ -17,6 +17,9 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
   const [rating, setRating] = useState(5);
   const [comment, setComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [replyText, setReplyText] = useState<{ [key: string]: string }>({});
+  const [replyingTo, setReplyingTo] = useState<string | null>(null);
+  const [isSubmittingReply, setIsSubmittingReply] = useState<string | null>(null);
 
   // Fetch reviews with profile info (requires public read on profiles)
   const { data: reviews, isLoading } = useQuery({
@@ -26,7 +29,11 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
         .from('product_reviews')
         .select(`
           *,
-          profiles (full_name, avatar_url)
+          profiles (full_name, avatar_url),
+          product_review_replies (
+            *,
+            profiles (full_name, avatar_url)
+          )
         `)
         .eq('product_id', productId)
         .order('created_at', { ascending: false });
@@ -43,6 +50,13 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
       .on(
         'postgres_changes',
         { event: '*', schema: 'public', table: 'product_reviews', filter: `product_id=eq.${productId}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
+        }
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'product_review_replies' },
         () => {
           queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
         }
@@ -77,6 +91,31 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
       toast.error(error.message || 'Failed to submit review.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleSubmitReply = async (e: React.FormEvent, reviewId: string) => {
+    e.preventDefault();
+    if (!user) return toast.error('Please login to reply.');
+    if (!replyText[reviewId]?.trim()) return toast.error('Please add a reply.');
+
+    try {
+      setIsSubmittingReply(reviewId);
+      const { error } = await supabase.from('product_review_replies').insert({
+        review_id: reviewId,
+        user_id: user.id,
+        comment: replyText[reviewId].trim(),
+      });
+
+      if (error) throw error;
+
+      toast.success('Reply submitted.');
+      setReplyText(prev => ({ ...prev, [reviewId]: '' }));
+      setReplyingTo(null);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to submit reply.');
+    } finally {
+      setIsSubmittingReply(null);
     }
   };
 
@@ -143,6 +182,63 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
                 <p className="text-text-secondary leading-relaxed font-sans italic opacity-80 pl-2 border-l-2 border-gold-primary/20">
                   "{review.comment}"
                 </p>
+
+                {/* Actions */}
+                <div className="mt-4 flex justify-end">
+                  <Button 
+                    variant="ghost" 
+                    onClick={() => setReplyingTo(replyingTo === review.id ? null : review.id)} 
+                    className="text-xs uppercase tracking-widest gap-2 opacity-50 hover:opacity-100"
+                  >
+                    <MessageSquare size={14} /> {replyingTo === review.id ? 'Cancel Reply' : 'Reply'}
+                  </Button>
+                </div>
+
+                {/* Reply Form */}
+                {replyingTo === review.id && (
+                  <form onSubmit={(e) => handleSubmitReply(e, review.id)} className="mt-6 flex flex-col gap-3">
+                     <textarea
+                       value={replyText[review.id] || ''}
+                       onChange={(e) => setReplyText(prev => ({ ...prev, [review.id]: e.target.value }))}
+                       placeholder="Share your thoughts..."
+                       className="w-full bg-obsidian/30 border border-glass-border focus:border-gold-primary/50 rounded-2xl p-4 min-h-[100px] text-text-primary text-sm resize-none outline-none"
+                     />
+                     <div className="flex justify-end pt-2">
+                       <Button type="submit" isLoading={isSubmittingReply === review.id} className="h-10 px-6 text-xs uppercase tracking-widest">
+                         Post Reply
+                       </Button>
+                     </div>
+                  </form>
+                )}
+
+                {/* Nested Replies */}
+                {review.product_review_replies && review.product_review_replies.length > 0 && (
+                  <div className="mt-6 pl-4 md:pl-6 border-l border-glass-border/30 space-y-4">
+                    {review.product_review_replies.map((reply: any) => (
+                       <div key={reply.id} className="p-4 rounded-2xl bg-surface-2/20 border border-glass-border/30 relative">
+                         <div className="absolute -left-4 md:-left-6 top-6 text-glass-border/50">
+                           <CornerDownRight size={16} />
+                         </div>
+                         <div className="flex justify-between items-start mb-2">
+                           <div className="flex items-center gap-2">
+                             <div className="w-6 h-6 rounded border border-gold-primary/20 flex items-center justify-center text-gold-primary/80">
+                               <User size={12} />
+                             </div>
+                             <div>
+                               <p className="text-xs text-text-primary font-bold">{reply.profiles?.full_name || 'Anonymous'}</p>
+                             </div>
+                           </div>
+                           <div className="text-text-muted text-[9px] uppercase font-bold tracking-widest opacity-60">
+                             {new Date(reply.created_at).toLocaleDateString()}
+                           </div>
+                         </div>
+                         <p className="text-text-secondary leading-relaxed text-sm mt-2 font-sans pl-1">
+                           {reply.comment}
+                         </p>
+                       </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))
           )}

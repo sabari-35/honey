@@ -30,27 +30,29 @@ export function Modal({ isOpen, onClose, title, children }: ModalProps) {
             onClick={onClose}
             className="fixed inset-0 z-50 bg-obsidian/60 backdrop-blur-sm"
           />
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed left-1/2 top-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 p-4 md:p-0"
-          >
-            <div className="glass-panel overflow-hidden w-full max-h-[90vh] flex flex-col">
-              <div className="flex items-center justify-between p-6 border-b border-glass-border">
-                {title && <h2 className="text-xl font-display text-gold-primary">{title}</h2>}
-                <button
-                  onClick={onClose}
-                  className="text-text-secondary hover:text-text-primary transition-colors"
-                >
-                  <X size={20} />
-                </button>
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 md:p-0 pointer-events-none">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="w-full max-w-lg pointer-events-auto"
+            >
+              <div className="glass-panel overflow-hidden w-full max-h-[90vh] flex flex-col">
+                <div className="flex items-center justify-between p-6 border-b border-glass-border">
+                  {title && <h2 className="text-xl font-display text-gold-primary">{title}</h2>}
+                  <button
+                    onClick={onClose}
+                    className="text-text-secondary hover:text-text-primary transition-colors"
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+                <div className="p-6 overflow-y-auto">
+                  {children}
+                </div>
               </div>
-              <div className="p-6 overflow-y-auto">
-                {children}
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
+          </div>
         </>
       )}
     </AnimatePresence>,

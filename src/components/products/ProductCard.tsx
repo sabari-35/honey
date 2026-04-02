@@ -7,6 +7,7 @@ import { useUiStore } from '../../store/uiStore';
 import { supabase } from '../../config/supabase';
 import { useQuery } from '@tanstack/react-query';
 import { StarRating } from './StarRating';
+import { WriteReviewModal } from './WriteReviewModal';
 import toast from 'react-hot-toast';
 
 interface ProductCardProps {
@@ -15,12 +16,13 @@ interface ProductCardProps {
 
 export function ProductCard({ product: initialProduct }: ProductCardProps) {
   const [product, setProduct] = useState(initialProduct);
+  const [isReviewModalOpen, setIsReviewModalOpen] = useState(false);
   const { addItem } = useCartStore();
   const { setCartOpen } = useUiStore();
 
   // Fetch aggregate rating
   const { data: reviews } = useQuery({
-    queryKey: ['product-reviews', product.id],
+    queryKey: ['product-reviews-rating', product.id],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('product_reviews')
@@ -130,9 +132,18 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
 
         {/* Rating & Stock */}
         <div className="flex items-center justify-between pt-2">
-          <div className="flex items-center gap-2">
-            <StarRating rating={avgRating} size={10} />
-            <span className="text-[10px] text-text-muted font-bold">({reviewCount})</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <Link to={`/product/${product.slug}`} className="flex items-center gap-1 group/rating cursor-pointer">
+              <StarRating rating={avgRating} size={10} />
+              <span className="text-[10px] text-text-muted font-bold group-hover/rating:text-gold-light transition-colors hover:underline">({reviewCount} Reviews)</span>
+            </Link>
+            <span className="text-glass-border text-[10px]">|</span>
+            <button 
+              onClick={(e) => { e.preventDefault(); setIsReviewModalOpen(true); }}
+              className="text-[10px] text-gold-primary uppercase font-bold tracking-widest hover:underline"
+            >
+              Add Review
+            </button>
           </div>
           <div className="flex items-center gap-2">
             <div className={`w-1.5 h-1.5 rounded-full ${isOutOfStock ? 'bg-danger' : isLowStock ? 'bg-warning animate-pulse' : 'bg-success'}`} />
@@ -155,6 +166,13 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
           {isOutOfStock ? 'Sold Out' : 'Add to Vault'}
         </button>
       </div>
+
+      <WriteReviewModal 
+        isOpen={isReviewModalOpen} 
+        onClose={() => setIsReviewModalOpen(false)} 
+        productId={product.id} 
+        productName={product.name} 
+      />
     </div>
   );
 }
