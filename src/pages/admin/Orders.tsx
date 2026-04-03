@@ -1,8 +1,8 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient, useMutation } from '@tanstack/react-query';
 import { supabase } from '../../config/supabase';
 import { formatCurrency } from '../../utils/formatCurrency';
 import { Badge } from '../../components/ui/Badge';
-import { Download, ChevronDown, ChevronUp, MapPin, Phone, Package, User } from 'lucide-react';
+import { Download, ChevronDown, ChevronUp, MapPin, Phone, Package, User, CheckCircle2, Clock, Banknote, AlertCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useEffect, useState } from 'react';
 import { generateInvoice } from '../../utils/generateInvoice';
@@ -50,6 +50,15 @@ export default function Orders() {
     };
   }, [queryClient]);
 
+  const handleMarkCODPaid = async (orderId: string) => {
+    const { error } = await supabase.rpc('mark_cod_collected', { p_order_id: orderId });
+    if (error) { toast.error('Failed to mark as paid'); return; }
+    toast.success('COD payment collected and order confirmed!');
+    queryClient.invalidateQueries({ queryKey: ['admin-orders'] });
+  };
+
+
+
   const handleDownloadInvoice = async (order: any) => {
     try {
       const toastId = toast.loading('Extracting Vault Document...');
@@ -83,9 +92,9 @@ export default function Orders() {
                   <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px]">Order ID</th>
                   <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px]">Customer</th>
                   <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px]">Date</th>
-                  <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px] text-right">Yield (Total)</th>
-                  <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px] text-center">Status</th>
-                  <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px] text-center">Protocol</th>
+                  <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px] text-right">Total</th>
+                  <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px] text-center">Order Status</th>
+                  <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px] text-center">Payment</th>
                   <th className="pb-6 px-4 font-bold uppercase tracking-wider text-[10px] text-center">Actions</th>
                 </tr>
               </thead>
@@ -116,16 +125,22 @@ export default function Orders() {
                         </Badge>
                       </td>
                       <td className="py-6 px-4 text-center">
-                        <span className="inline-flex px-3 py-1 rounded-full bg-obsidian border border-glass-border text-text-muted text-[10px] uppercase font-black tracking-widest">
-                           {order.payment_status}
-                        </span>
+                        <PaymentBadge status={order.payment_status} />
                       </td>
                       <td className="py-6 px-4">
                         <div className="flex items-center justify-center gap-2">
+                          {order.payment_status === 'cod_pending' && (
+                            <button
+                              onClick={() => handleMarkCODPaid(order.id)}
+                              className="h-9 px-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[10px] font-black uppercase tracking-widest hover:bg-amber-500/20 transition-all cursor-pointer flex items-center gap-1.5"
+                              title="Mark COD as Collected"
+                            >
+                              <Banknote size={12} /> Collect
+                            </button>
+                          )}
                           <button 
                             onClick={() => setExpandedOrderId(expandedOrderId === order.id ? null : order.id)}
                             className="w-10 h-10 rounded-xl neumorphic-panel flex items-center justify-center text-text-secondary hover:text-gold-primary transition-all cursor-pointer"
-                            title={expandedOrderId === order.id ? "Collapse" : "View Details"}
                           >
                             {expandedOrderId === order.id ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
                           </button>
@@ -233,3 +248,20 @@ export default function Orders() {
 // Fixed missing icon imports in the main block
 import { ShoppingBag, ShieldAlert } from 'lucide-react';
 import React from 'react';
+
+function PaymentBadge({ status }: { status: string }) {
+  const variants: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
+    paid:            { color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30', icon: <CheckCircle2 size={11} />, label: 'Paid' },
+    verified:        { color: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30', icon: <CheckCircle2 size={11} />, label: 'Verified' },
+    cod_pending:     { color: 'text-amber-400 bg-amber-500/10 border-amber-500/30',   icon: <Banknote size={11} />,      label: 'COD Pending' },
+    pending:         { color: 'text-text-muted bg-glass-border/10 border-glass-border', icon: <Clock size={11} />,         label: 'Pending' },
+    awaiting_payment:{ color: 'text-red-400 bg-red-500/10 border-red-500/30',          icon: <AlertCircle size={11} />,   label: 'Abandoned' },
+    failed:          { color: 'text-red-400 bg-red-500/10 border-red-500/30',          icon: <AlertCircle size={11} />,   label: 'Failed' },
+  };
+  const v = variants[status] || variants.pending;
+  return (
+    <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${v.color}`}>
+      {v.icon} {v.label}
+    </span>
+  );
+}
