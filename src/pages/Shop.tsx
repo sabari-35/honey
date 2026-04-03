@@ -3,6 +3,8 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '../config/supabase';
 import { ProductCard } from '../components/products/ProductCard';
 import { Search, SlidersHorizontal } from 'lucide-react';
+import { TrendingNow } from '../components/recommendations/TrendingNow';
+import { RecommendedForYou } from '../components/recommendations/RecommendedForYou';
 
 export default function Shop() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -140,6 +142,12 @@ export default function Shop() {
             )}
           </>
         )}
+
+        {/* Recommendation Sections */}
+        <div className="mt-20 space-y-4">
+          <TrendingNow />
+          <RecommendedForYou />
+        </div>
 
       </div>
     </div>

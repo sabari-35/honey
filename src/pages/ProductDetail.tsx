@@ -8,10 +8,15 @@ import { ReviewSection } from '../components/products/ReviewSection';
 import { ShoppingBag, ArrowLeft, ShieldCheck, Droplet, Star } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
+import { useEffect } from 'react';
+import { useAnalytics } from '../hooks/useAnalytics';
+import { SimilarProducts } from '../components/recommendations/SimilarProducts';
+import { FrequentlyBoughtTogether } from '../components/recommendations/FrequentlyBoughtTogether';
 
 export default function ProductDetail() {
   const { slug } = useParams();
   const { addItem } = useCartStore();
+  const { trackEvent } = useAnalytics();
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ['product', slug],
@@ -25,6 +30,13 @@ export default function ProductDetail() {
       return data;
     }
   });
+
+  // Track product view
+  useEffect(() => {
+    if (product?.id) {
+      trackEvent(product.id, 'view');
+    }
+  }, [product?.id]);
 
   if (isLoading) return (
     <div className="min-h-screen pt-32 flex items-center justify-center">
@@ -142,6 +154,12 @@ export default function ProductDetail() {
         {/* Reviews Manifest */}
         <div className="mt-32 border-t border-glass-border pt-32">
           <ReviewSection productId={product.id} />
+        </div>
+
+        {/* Recommendation Sections */}
+        <div className="mt-12 space-y-4">
+          <FrequentlyBoughtTogether productId={product.id} />
+          <SimilarProducts productId={product.id} />
         </div>
 
       </div>
