@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../config/supabase';
 import { Button } from '../components/ui/Button';
@@ -16,8 +16,73 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
 
+  // Rate Limiting State
+  const MAX_ATTEMPTS = 5;
+  const LOCKOUT_DURATION = 5 * 60 * 1000; // 5 minutes
+  const [failedAttempts, setFailedAttempts] = useState(0);
+  const [lockoutUntil, setLockoutUntil] = useState<number | null>(null);
+  const [timeRemaining, setTimeRemaining] = useState<number>(0);
+
+  // Initialize and tick rate limiting timer
+  useEffect(() => {
+    const savedState = localStorage.getItem('auth_rate_limit');
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        if (parsed.lockoutUntil && Date.now() < parsed.lockoutUntil) {
+          setLockoutUntil(parsed.lockoutUntil);
+          setFailedAttempts(parsed.failedAttempts || 0);
+        } else if (parsed.lockoutUntil && Date.now() >= parsed.lockoutUntil) {
+          // Clear if expired
+          localStorage.removeItem('auth_rate_limit');
+        }
+      } catch (err) {}
+    }
+
+    const interval = setInterval(() => {
+      if (lockoutUntil) {
+        const remaining = lockoutUntil - Date.now();
+        if (remaining <= 0) {
+          setLockoutUntil(null);
+          setFailedAttempts(0);
+          localStorage.removeItem('auth_rate_limit');
+          setTimeRemaining(0);
+        } else {
+          setTimeRemaining(Math.ceil(remaining / 1000));
+        }
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [lockoutUntil]);
+
+  const handleFailedAttempt = () => {
+    const newCount = failedAttempts + 1;
+    let newLockout = null;
+    
+    if (newCount >= MAX_ATTEMPTS) {
+      newLockout = Date.now() + LOCKOUT_DURATION;
+      toast.error('Too many failed attempts. Account locked for 5 minutes.');
+    }
+    
+    setFailedAttempts(newCount);
+    if (newLockout) setLockoutUntil(newLockout);
+    
+    localStorage.setItem('auth_rate_limit', JSON.stringify({ 
+      failedAttempts: newCount, 
+      lockoutUntil: newLockout 
+    }));
+  };
+
+  const isLocked = lockoutUntil !== null;
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isLocked) {
+      toast.error(`Authentication locked. Try again in ${timeRemaining} seconds.`);
+      return;
+    }
+
     try {
       setIsLoading(true);
 
@@ -48,6 +113,7 @@ export default function Login() {
         navigate('/shop');
       }
     } catch (error: any) {
+      handleFailedAttempt();
       toast.error(error.message || 'Authentication failed');
     } finally {
       setIsLoading(false);
@@ -55,6 +121,11 @@ export default function Login() {
   };
 
   const handleGoogleLogin = async () => {
+    if (isLocked) {
+      toast.error(`Authentication locked. Try again in ${timeRemaining} seconds.`);
+      return;
+    }
+
     try {
       setIsLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
@@ -65,6 +136,7 @@ export default function Login() {
       });
       if (error) throw error;
     } catch (error: any) {
+      handleFailedAttempt();
       toast.error(error.message || 'Error logging in with Google');
     } finally {
       setIsLoading(false);
@@ -91,6 +163,17 @@ export default function Login() {
         </p> */}
 
         <form onSubmit={handleAuth} className="w-full space-y-5">
+          {isLocked && (
+            <div className="w-full bg-danger/10 border border-danger/20 rounded-xl p-4 text-center">
+              <p className="text-danger font-bold text-sm tracking-widest uppercase">
+                Auth Secured: Limit Reached
+              </p>
+              <p className="text-text-secondary text-xs mt-1">
+                Please try again in <span className="font-mono text-gold-light font-bold text-sm">{Math.floor(timeRemaining / 60)}:{(timeRemaining % 60).toString().padStart(2, '0')}</span>
+              </p>
+            </div>
+          )}
+
           {isSignUp && (
             <Input
               label="Full Name"
@@ -107,6 +190,7 @@ export default function Login() {
             placeholder="sabari.psmail@gmail.com"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            disabled={isLocked || isLoading}
             required
           />
           <Input
@@ -115,6 +199,7 @@ export default function Login() {
             placeholder="••••••••"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            disabled={isLocked || isLoading}
             required
           />
 
@@ -123,6 +208,7 @@ export default function Login() {
             size="lg"
             className="w-full mt-4 h-14 text-lg font-bold tracking-widest font-display"
             isLoading={isLoading}
+            disabled={isLocked}
           >
             {isSignUp ? 'Sign up' : 'Sign in'}
           </Button>
@@ -136,7 +222,7 @@ export default function Login() {
 
         <button
           onClick={handleGoogleLogin}
-          disabled={isLoading}
+          disabled={isLoading || isLocked}
           className="w-full h-14 rounded-2xl bg-[#1A1A1E] border border-glass-border hover:border-gold-primary/50 text-text-primary hover:text-gold-primary transition-all flex items-center justify-center gap-4 group cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <svg className={`w-6 h-6 grayscale-0 transition-all duration-300 ${isLoading ? 'opacity-50' : ''}`} viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
