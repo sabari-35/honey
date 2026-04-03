@@ -122,6 +122,29 @@ export default function Checkout() {
         notes: { order_id: order.id, order_number: order.order_number },
         prefill: { name: fullName, contact: phone, email: user.email },
         theme: { color: '#D4AF37' },
+        config: {
+          display: {
+            // Show UPI first (includes GPay, PhonePe, Paytm)
+            preferences: { show_default_blocks: false },
+            blocks: {
+              banks: {
+                name: 'Pay via UPI',
+                instruments: [
+                  { method: 'upi', flows: ['collect', 'intent', 'qr'] },
+                ],
+              },
+              cards: {
+                name: 'Pay via Cards',
+                instruments: [{ method: 'card' }],
+              },
+              netbanking: {
+                name: 'Net Banking',
+                instruments: [{ method: 'netbanking' }],
+              },
+            },
+            sequence: ['block.banks', 'block.cards', 'block.netbanking'],
+          },
+        },
 
         handler: async (response: any) => {
           // Payment SUCCESS — verify and confirm the order
