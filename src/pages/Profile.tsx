@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { supabase } from '../config/supabase';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { User, Phone, MapPin, Save, Link} from 'lucide-react';
+import { User, Phone, MapPin, Save, Link, Truck} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 
@@ -23,6 +23,44 @@ export default function Profile() {
   const [selectedAddress, setSelectedAddress] = useState<{ label: string; lat: number; lng: number } | null>(
     (profile as any)?.default_address || null
   );
+
+  const [deliveryStatus, setDeliveryStatus] = useState<'none' | 'pending' | 'approved'>('none');
+  const [vehicleDetails, setVehicleDetails] = useState('');
+  const [isRequesting, setIsRequesting] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      supabase.from('delivery_boys').select('is_active').eq('id', user.id).single()
+      .then(({ data }) => {
+        if (data) {
+          if (data.is_active) setDeliveryStatus('approved');
+          else setDeliveryStatus('pending');
+        }
+      });
+    }
+  }, [user]);
+
+  const handleRequestDelivery = async () => {
+    if (!vehicleDetails.trim()) { toast.error("Please enter vehicle details to apply."); return; }
+    if (!fullName || !phone) { toast.error("Please save your personal info (Name & Phone) first."); return; }
+    setIsRequesting(true);
+    try {
+        const { error } = await supabase.from('delivery_boys').insert([{
+            id: user!.id,
+            full_name: fullName,
+            phone: phone,
+            vehicle_details: vehicleDetails,
+            is_active: false
+        }]);
+        if (error) throw error;
+        toast.success("Delivery partner request submitted!");
+        setDeliveryStatus('pending');
+    } catch (e: any) {
+        toast.error(e.message);
+    } finally {
+        setIsRequesting(false);
+    }
+  };
 
   // Sync internal state when profile loads asynchronously
   useEffect(() => {
@@ -243,6 +281,35 @@ export default function Profile() {
             <div className="neumorphic-inset p-4 rounded-xl border border-gold-primary/20">
               <p className="text-xs uppercase tracking-widest text-gold-primary mb-1">Selected Address</p>
               <p className="text-text-primary text-sm">{selectedAddress.label}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Delivery Partner */}
+        <div className="neumorphic-panel p-8 rounded-3xl space-y-6">
+          <div className="flex items-center gap-3 border-b border-glass-border pb-5">
+            <Truck size={18} className="text-gold-primary" />
+            <h2 className="font-display text-xl text-text-primary tracking-widest uppercase">Partner Program</h2>
+          </div>
+          {deliveryStatus === 'none' && (
+            <div className="space-y-4">
+              <p className="text-sm text-text-secondary">Earn by delivering for Honey Hub! Save your Phone/Name first, then enter your vehicle details below to request partner status.</p>
+              <Input label="Vehicle Details" value={vehicleDetails} onChange={(e) => setVehicleDetails(e.target.value)} placeholder="e.g. Honda Activa - KA01AB1234" />
+              <Button onClick={handleRequestDelivery} isLoading={isRequesting} className="w-full">Submit Request</Button>
+            </div>
+          )}
+          {deliveryStatus === 'pending' && (
+            <div className="p-4 bg-yellow-500/10 border border-yellow-500/20 text-yellow-500 rounded-xl">
+              Your request to become a delivery partner is under review by our admin team!
+            </div>
+          )}
+          {deliveryStatus === 'approved' && (
+            <div className="p-5 bg-green-500/10 border border-green-500/20 text-green-500 rounded-xl flex items-center justify-between">
+              <div>
+                <p className="font-bold text-lg">Partner Account Active</p>
+                <p className="text-sm opacity-80 mt-1">You are an approved delivery partner!</p>
+              </div>
+              <Button onClick={() => navigate('/delivery/dashboard')}>Portal</Button>
             </div>
           )}
         </div>

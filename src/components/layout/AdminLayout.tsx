@@ -37,6 +37,7 @@ export default function AdminLayout() {
     { to: '/admin/products', label: 'Products', icon: Settings, exact: false },
     { to: '/admin/users', label: 'Users', icon: Users, exact: false },
     { to: '/admin/reviews', label: 'Reviews', icon: MessageSquare, exact: false },
+    { to: '/admin/deliveries', label: 'Deliveries', icon: ShoppingCart, exact: false },
   ];
 
   return (

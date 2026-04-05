@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Outlet } from 'react-router-dom';
 import { lazy, Suspense } from 'react';
 import PageTransition from './components/layout/PageTransition';
 import { useAuthInit } from './hooks/useAuth';
@@ -15,6 +15,7 @@ const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
 const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
+const CustomerTracking = lazy(() => import('./pages/CustomerTracking'));
 
 // Admin Pages
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -22,6 +23,11 @@ const Orders = lazy(() => import('./pages/admin/Orders'));
 const Products = lazy(() => import('./pages/admin/Products'));
 const Users = lazy(() => import('./pages/admin/Users'));
 const Reviews = lazy(() => import('./pages/admin/Reviews'));
+const AdminDeliveries = lazy(() => import('./pages/admin/AdminDeliveries'));
+
+// Delivery Pages
+const DeliveryLogin = lazy(() => import('./pages/delivery/DeliveryLogin'));
+const DeliveryDashboard = lazy(() => import('./pages/delivery/DeliveryDashboard'));
 
 const FallbackLoader = () => (
   <div className="min-h-screen bg-obsidian flex items-center justify-center text-gold-primary font-display tracking-widest uppercase">
@@ -45,6 +51,7 @@ const router = createBrowserRouter([
       { path: 'success', element: <PageTransition><OrderSuccess /></PageTransition> },
       { path: 'login', element: <PageTransition><Login /></PageTransition> },
       { path: 'profile', element: <PageTransition><Profile /></PageTransition> },
+      { path: 'order/:id/track', element: <PageTransition><CustomerTracking /></PageTransition> },
     ],
   },
   {
@@ -60,6 +67,19 @@ const router = createBrowserRouter([
       { path: 'products', element: <PageTransition><Products /></PageTransition> },
       { path: 'users', element: <PageTransition><Users /></PageTransition> },
       { path: 'reviews', element: <PageTransition><Reviews /></PageTransition> },
+      { path: 'deliveries', element: <PageTransition><AdminDeliveries /></PageTransition> },
+    ]
+  },
+  {
+    path: '/delivery',
+    element: (
+      <Suspense fallback={<FallbackLoader />}>
+        <Outlet />
+      </Suspense>
+    ),
+    children: [
+      { path: 'login', element: <PageTransition><DeliveryLogin /></PageTransition> },
+      { path: 'dashboard', element: <PageTransition><DeliveryDashboard /></PageTransition> },
     ]
   }
 ]);
