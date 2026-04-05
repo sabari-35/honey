@@ -9,6 +9,7 @@ const AdminLayout = lazy(() => import('./components/layout/AdminLayout'));
 
 // Pages
 const Landing = lazy(() => import('./pages/Landing'));
+const Process = lazy(() => import('./pages/Process'));
 const Shop = lazy(() => import('./pages/Shop'));
 const ProductDetail = lazy(() => import('./pages/ProductDetail'));
 const Checkout = lazy(() => import('./pages/Checkout'));
@@ -46,6 +47,7 @@ const router = createBrowserRouter([
     ),
     children: [
       { index: true, element: <PageTransition><Landing /></PageTransition> },
+      { path: 'process', element: <PageTransition><Process /></PageTransition> },
       { path: 'shop', element: <PageTransition><Shop /></PageTransition> },
       { path: 'product/:slug', element: <PageTransition><ProductDetail /></PageTransition> },
       { path: 'checkout', element: <PageTransition><Checkout /></PageTransition> },
