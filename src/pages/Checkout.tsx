@@ -8,11 +8,11 @@ import { supabase } from '../config/supabase';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
 import { formatCurrency } from '../utils/formatCurrency';
-import { MapPin, User, CreditCard, Banknote, QrCode, ShieldCheck, AlertTriangle, CheckCircle, Loader } from 'lucide-react';
+import { MapPin, User, CreditCard, Banknote, QrCode, ShieldCheck, AlertTriangle, CheckCircle, Loader, MessageCircle } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import toast from 'react-hot-toast';
 
-type PaymentMethod = 'cod' | 'upi' | 'card';
+type PaymentMethod = 'cod' | 'upi' | 'card' | 'whatsapp';
 
 const COD_FEE = 40; // ₹40 COD handling fee
 const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder';
@@ -43,11 +43,19 @@ export default function Checkout() {
   const [isProcessing, setIsProcessing] = useState(false);
   const [paymentStep, setPaymentStep] = useState<'idle' | 'creating_order' | 'gateway' | 'verifying'>('idle');
   const [showCODConfirm, setShowCODConfirm] = useState(false);
+  const [whatsappNumber, setWhatsappNumber] = useState('6374241896');
 
   const subtotal = selectSubtotal(items);
   const shipping = subtotal > 1000 ? 0 : 150;
   const codFee = paymentMethod === 'cod' ? COD_FEE : 0;
   const total = subtotal + shipping + codFee;
+
+  useEffect(() => {
+    supabase.from('store_settings').select('setting_value').eq('setting_key', 'whatsapp_number').single()
+      .then(({data}) => {
+        if (data) setWhatsappNumber(data.setting_value);
+      });
+  }, []);
 
   useEffect(() => {
     setCartOpen(false);
@@ -235,6 +243,40 @@ export default function Checkout() {
     }
   };
 
+  const handleWhatsAppOrder = () => {
+    setIsProcessing(true);
+    try {
+      const text = `*New Order - VRK FARMS*\n\n` + 
+                   `📦 *Order Details:*\n` + 
+                   items.map(i => `- ${i.quantity}x ${i.product.name} (₹${i.product.price * i.quantity})`).join('\n') + 
+                   `\n\n*Subtotal:* ₹${subtotal}\n` +
+                   `*Shipping:* ₹${shipping}\n` +
+                   `*Total:* ₹${subtotal + shipping}\n\n` +
+                   `👤 *Customer Info:*\n` +
+                   `Name: ${fullName}\n` +
+                   `Phone: ${phone}\n` +
+                   `Address: ${address}\n\n` + 
+                   `Please confirm my order.`;
+
+      const encodedText = encodeURIComponent(text);
+      const waNumber = whatsappNumber || '6374241896';
+      // Basic formatting, remove non-digits. Assume Indian +91 if length is 10
+      const cleanWa = waNumber.replace(/\D/g, '');
+      const finalWa = cleanWa.length === 10 ? `91${cleanWa}` : cleanWa;
+      const waUrl = `https://wa.me/${finalWa}?text=${encodedText}`;
+
+      window.open(waUrl, '_blank');
+      
+      clearCart();
+      toast.success('Redirecting to WhatsApp to complete order...');
+      navigate('/shop');
+    } catch(e: any) {
+      toast.error('Failed to initiate WhatsApp order.');
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!user) { toast.error('Please sign in.'); navigate('/login'); return; }
@@ -242,6 +284,8 @@ export default function Checkout() {
 
     if (paymentMethod === 'cod') {
       setShowCODConfirm(true);
+    } else if (paymentMethod === 'whatsapp') {
+      handleWhatsAppOrder();
     } else {
       handleOnlinePayment();
     }
@@ -342,7 +386,28 @@ export default function Checkout() {
                   selected={paymentMethod === 'card'}
                   onClick={() => setPaymentMethod('card')}
                 />
+                <PaymentOption
+                  label="WhatsApp Order"
+                  sublabel="Direct to Admin"
+                  icon={<MessageCircle size={20} />}
+                  selected={paymentMethod === 'whatsapp'}
+                  onClick={() => setPaymentMethod('whatsapp')}
+                />
               </div>
+
+              {/* WhatsApp Payment Info */}
+              {paymentMethod === 'whatsapp' && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  className="flex items-start gap-3 bg-green-500/5 border border-green-500/20 rounded-2xl p-4"
+                >
+                  <MessageCircle size={16} className="text-green-400 shrink-0 mt-0.5" />
+                  <p className="text-xs text-green-300 leading-relaxed">
+                    By clicking to Place Order through WhatsApp, your current Vault manifest and precise location data will be formatted into an encrypted message. Direct communication will be established with the VRK Farms administrator to manually fulfill your request without gateway limits.
+                  </p>
+                </motion.div>
+              )}
 
               {/* Online payment assurance banner */}
               {paymentMethod !== 'cod' && (
@@ -428,7 +493,7 @@ export default function Checkout() {
                 isLoading={isProcessing}
                 disabled={isProcessing}
               >
-                {paymentMethod === 'cod' ? 'Place COD Order' : 'Pay & Confirm Order'}
+                {paymentMethod === 'cod' ? 'Place COD Order' : paymentMethod === 'whatsapp' ? 'Place Order Through WhatsApp' : 'Pay & Confirm Order'}
               </Button>
 
               <div className="flex items-center justify-center gap-2 text-[10px] text-text-muted uppercase tracking-[0.2em]">

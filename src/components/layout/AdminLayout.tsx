@@ -32,18 +32,19 @@ export default function AdminLayout() {
   };
 
   const navLinks = [
-    { to: '/admin', label: 'Dashboard', icon: Box, exact: true },
+    { to: '/admin', label: 'Dashboard', icon: LayoutDashboard, exact: true },
     { to: '/admin/orders', label: 'Orders', icon: ShoppingCart, exact: false },
-    { to: '/admin/products', label: 'Products', icon: Settings, exact: false },
+    { to: '/admin/products', label: 'Products', icon: Box, exact: false },
     { to: '/admin/users', label: 'Users', icon: Users, exact: false },
     { to: '/admin/reviews', label: 'Reviews', icon: MessageSquare, exact: false },
     { to: '/admin/deliveries', label: 'Deliveries', icon: ShoppingCart, exact: false },
+    { to: '/admin/settings', label: 'Settings', icon: Settings, exact: false },
   ];
 
   return (
     <>
     <Navbar />
-    <div className="flex h-screen bg-obsidian text-text-primary p-4 pt-28 gap-6">
+    <div className="flex h-screen w-full overflow-hidden bg-obsidian text-text-primary p-4 pt-28 gap-6">
       {/* Sidebar */}
       <aside className="w-64 neumorphic-panel rounded-3xl flex flex-col border-none shrink-0 overflow-hidden">
         <div className="h-20 flex items-center px-8 border-b border-glass-border">
@@ -67,18 +68,20 @@ export default function AdminLayout() {
           </div>
         </div>
 
-        <nav className="flex-1 p-4 flex flex-col gap-2">
-          {navLinks.map(({ to, label, icon: Icon, exact }) => {
-            const isActive = exact ? location.pathname === to : location.pathname.startsWith(to);
-            return (
-              <Link key={to} to={to} className={`p-4 rounded-2xl font-medium transition-all flex items-center gap-3 group ${isActive ? 'neumorphic-inset text-gold-primary' : 'text-text-secondary hover:text-text-primary hover:bg-white/5'}`}>
-                <Icon size={18} className={isActive ? 'text-gold-primary' : 'text-text-muted group-hover:text-text-secondary'} />
-                <span className="tracking-wide">{label}</span>
-              </Link>
-            );
-          })}
+        <nav className="flex-1 p-4 flex flex-col gap-2 overflow-y-auto custom-scrollbar">
+          <div className="flex-1 flex flex-col gap-2">
+            {navLinks.map(({ to, label, icon: Icon, exact }) => {
+              const isActive = exact ? location.pathname === to : location.pathname.startsWith(to);
+              return (
+                <Link key={to} to={to} className={`p-4 rounded-2xl font-medium transition-all flex items-center gap-3 group ${isActive ? 'neumorphic-inset text-gold-primary' : 'text-text-secondary hover:text-text-primary hover:bg-white/5'}`}>
+                  <Icon size={18} className={isActive ? 'text-gold-primary' : 'text-text-muted group-hover:text-text-secondary'} />
+                  <span className="tracking-wide">{label}</span>
+                </Link>
+              );
+            })}
+          </div>
           
-          <div className="mt-auto pt-4 border-t border-glass-border">
+          <div className="mt-6 pt-4 border-t border-glass-border shrink-0">
             <Link to="/shop" className="p-4 rounded-2xl font-medium transition-all flex items-center gap-3 text-text-secondary hover:text-text-primary hover:bg-white/5 w-full">
               <ShoppingCart size={18} className="text-text-muted" />
               <span className="tracking-wide">View Storefront</span>
@@ -91,8 +94,8 @@ export default function AdminLayout() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 overflow-y-auto rounded-3xl">
-        <div className="max-w-6xl mx-auto pb-12 pt-2">
+      <main className="flex-1 overflow-y-auto rounded-3xl min-w-0">
+        <div className="max-w-6xl mx-auto pb-12 pt-2 pr-4">
           <Outlet />
         </div>
       </main>

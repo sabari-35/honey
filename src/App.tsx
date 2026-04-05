@@ -26,6 +26,7 @@ const Products = lazy(() => import('./pages/admin/Products'));
 const Users = lazy(() => import('./pages/admin/Users'));
 const Reviews = lazy(() => import('./pages/admin/Reviews'));
 const AdminDeliveries = lazy(() => import('./pages/admin/AdminDeliveries'));
+const Settings = lazy(() => import('./pages/admin/Settings'));
 
 // Delivery Pages
 const DeliveryLogin = lazy(() => import('./pages/delivery/DeliveryLogin'));
@@ -72,6 +73,7 @@ const router = createBrowserRouter([
       { path: 'users', element: <PageTransition><Users /></PageTransition> },
       { path: 'reviews', element: <PageTransition><Reviews /></PageTransition> },
       { path: 'deliveries', element: <PageTransition><AdminDeliveries /></PageTransition> },
+      { path: 'settings', element: <PageTransition><Settings /></PageTransition> },
     ]
   },
   {
