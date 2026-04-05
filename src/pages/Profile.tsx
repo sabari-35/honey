@@ -294,7 +294,7 @@ export default function Profile() {
           </div>
           {deliveryStatus === 'none' && (
             <div className="space-y-4">
-              <p className="text-sm text-text-secondary">Earn by delivering for Honey Hub! Save your Phone/Name first, then enter your vehicle details below to request partner status.</p>
+              <p className="text-sm text-text-secondary">Earn by delivering for VRK Farms! Save your Phone/Name first, then enter your vehicle details below to request partner status.</p>
               <Input label="Vehicle Details" value={vehicleDetails} onChange={(e) => setVehicleDetails(e.target.value)} placeholder="e.g. Honda Activa - KA01AB1234" />
               <Button onClick={handleRequestDelivery} isLoading={isRequesting} className="w-full">Submit Request</Button>
             </div>

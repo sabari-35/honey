@@ -3,7 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { supabase } from '../config/supabase';
 import { Button } from '../components/ui/Button';
-import { Package, Truck, Navigation, CheckCircle, PackageOpen } from 'lucide-react';
+import { Package, Navigation, CheckCircle, PackageOpen, Box, Calendar, Clock, MapPin } from 'lucide-react';
+import { formatCurrency } from '../utils/formatCurrency';
+
+const getStatusStyles = (status: string) => {
+  switch (status.toLowerCase()) {
+    case 'pending': return 'text-warning bg-warning/10 border-warning/20';
+    case 'confirmed': return 'text-blue-400 bg-blue-400/10 border-blue-400/20';
+    case 'packed': return 'text-purple-400 bg-purple-400/10 border-purple-400/20';
+    case 'shipped': 
+    case 'assigned': 
+    case 'picked': 
+    case 'out_for_delivery': return 'text-gold-primary bg-gold-primary/10 border-gold-primary/20 shadow-[0_0_15px_rgba(212,175,55,0.2)]';
+    case 'delivered': return 'text-success bg-success/10 border-success/20';
+    case 'cancelled': return 'text-danger bg-danger/10 border-danger/20';
+    default: return 'text-text-muted bg-white/5 border-white/10';
+  }
+};
+
+const formatStatus = (status: string) => status.replace(/_/g, ' ').toUpperCase();
 
 export default function MyOrders() {
   const { user } = useAuthStore();
@@ -42,8 +60,8 @@ export default function MyOrders() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-obsidian pt-32 pb-16 px-4">
-         <div className="text-center text-gold-primary animate-pulse font-display tracking-widest uppercase">Loading Active Transports...</div>
+      <div className="min-h-screen bg-obsidian pt-32 pb-16 px-4 flex items-center justify-center">
+         <div className="w-12 h-12 border-2 border-gold-primary/20 border-t-gold-primary rounded-full animate-spin"></div>
       </div>
     );
   }
@@ -51,94 +69,137 @@ export default function MyOrders() {
   if (!user) {
     return (
       <div className="min-h-screen bg-obsidian pt-32 pb-16 px-4">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
-          <Package className="w-16 h-16 text-gold-primary mx-auto mb-4" />
-          <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Authentication Required</h1>
-          <p className="text-text-muted">Please log in to view your Active Transports.</p>
-          <Button onClick={() => navigate('/login')}>Login Now</Button>
+        <div className="max-w-md mx-auto text-center neumorphic-panel p-12 rounded-[2.5rem]">
+          <Package className="w-16 h-16 text-gold-primary/50 mx-auto mb-6" />
+          <h1 className="font-display text-2xl text-gold-primary tracking-widest uppercase mb-4">Vault Locked</h1>
+          <p className="text-text-muted text-sm mb-8">Authentication is required to view your secure manifests.</p>
+          <Button onClick={() => navigate('/login')} className="w-full h-14">Authenticate</Button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-obsidian pt-32 pb-16 px-4 font-sans">
-      <div className="max-w-5xl mx-auto space-y-8">
+    <div className="min-h-screen bg-obsidian pt-32 pb-24 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      
+      {/* Background glow */}
+      <div className="absolute top-0 right-1/4 w-[800px] h-[800px] bg-gold-primary/5 blur-[150px] rounded-full pointer-events-none -translate-y-1/2"></div>
+      
+      <div className="max-w-6xl mx-auto relative z-10 space-y-12">
         
-        <div className="flex items-center gap-4 border-b border-glass-border pb-6">
-          <div className="w-14 h-14 rounded-2xl neumorphic-inset flex items-center justify-center overflow-hidden shrink-0">
-            <Package size={24} className="text-gold-primary" />
-          </div>
+        {/* Header */}
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-6 border-b border-glass-border pb-8">
           <div>
-            <h1 className="font-display text-3xl md:text-4xl text-gold-primary tracking-[0.15em] uppercase">My Orders</h1>
-            <p className="text-text-secondary mt-1 tracking-wide text-sm">Real-time status of your shipments</p>
+            <div className="flex items-center gap-3 mb-2">
+              <Package className="text-gold-primary" size={24} />
+              <h1 className="font-display text-4xl text-text-primary tracking-widest uppercase">My Orders</h1>
+            </div>
+            <p className="text-text-muted text-sm uppercase tracking-widest font-black opacity-60 ml-9">Secure Transport Manifests</p>
+          </div>
+          <div className="text-right ml-9 md:ml-0">
+             <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-text-muted">Active Count</p>
+             <p className="font-display text-3xl tracking-widest text-gold-primary">{myOrders.length}</p>
           </div>
         </div>
 
         {myOrders.length === 0 ? (
-          <div className="neumorphic-panel rounded-3xl p-16 text-center">
-            <PackageOpen className="w-16 h-16 text-gold-primary/30 mx-auto mb-4" />
-            <h2 className="font-display text-2xl text-gold-primary tracking-widest uppercase mb-2">Vault Empty</h2>
-            <p className="text-text-secondary">You haven't placed any orders yet.</p>
-            <Button onClick={() => navigate('/shop')} className="mt-8">Explore Storefront</Button>
+          <div className="neumorphic-inset rounded-[3rem] p-24 text-center border border-white/5 relative overflow-hidden">
+            <PackageOpen className="w-20 h-20 text-gold-primary/20 mx-auto mb-6 relative z-10" />
+            <h2 className="font-display text-3xl text-gold-primary tracking-widest uppercase mb-4 relative z-10">Vault Empty</h2>
+            <p className="text-text-secondary max-w-sm mx-auto relative z-10">You have no active or past transports. Your manifests will appear here once secured.</p>
+            <Button onClick={() => navigate('/shop')} className="mt-10 h-14 px-10 tracking-widest uppercase font-black relative z-10">
+              Enter The Vault
+            </Button>
           </div>
         ) : (
-          <div className="grid gap-6">
-            {myOrders.map(order => (
-              <div key={order.id} className="neumorphic-panel rounded-3xl p-6 md:p-8 flex flex-col md:flex-row gap-8 justify-between items-start md:items-center hover:border-gold-primary/30 transition-all border border-transparent group overflow-hidden relative">
-                
-                {/* Background Glow */}
-                <div className="absolute top-0 right-0 w-64 h-64 bg-gold-primary/5 rounded-full blur-[100px] opacity-0 group-hover:opacity-100 transition-opacity duration-1000 pointer-events-none"></div>
+          <div className="space-y-6">
+            {myOrders.map(order => {
+               const isActiveTracking = ['shipped', 'out_for_delivery', 'assigned', 'picked'].includes(order.status);
+               
+               return (
+                 <div key={order.id} className="neumorphic-panel rounded-3xl md:rounded-[2.5rem] bg-gradient-to-br from-surface-2/40 to-transparent border border-glass-border hover:border-gold-primary/30 transition-all duration-500 overflow-hidden group">
+                   
+                   {/* Top Bar */}
+                   <div className="border-b border-glass-border bg-obsidian/30 p-6 md:px-10 md:py-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                     <div className="space-y-1">
+                        <div className="flex items-center gap-4">
+                          <h3 className="font-display text-2xl text-gold-light tracking-widest">#{order.order_number}</h3>
+                          <div className={`px-4 py-1.5 rounded-full border text-[10px] font-black uppercase tracking-widest ${getStatusStyles(order.status)}`}>
+                             {formatStatus(order.status)}
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-6 text-[10px] text-text-muted font-black tracking-widest uppercase opacity-70">
+                           <div className="flex items-center gap-1.5"><Calendar size={12} /> {new Date(order.created_at).toLocaleDateString()}</div>
+                           <div className="flex items-center gap-1.5"><Clock size={12} /> {new Date(order.created_at).toLocaleTimeString()}</div>
+                        </div>
+                     </div>
+                     <div className="text-left md:text-right w-full md:w-auto">
+                        <p className="text-[10px] uppercase font-bold tracking-widest text-text-muted mb-1">Total Valuation</p>
+                        <p className="text-2xl font-bold font-mono tracking-wider text-text-primary">{formatCurrency(order.total_amount)}</p>
+                     </div>
+                   </div>
 
-                <div className="w-full md:w-auto flex-1 z-10">
-                  <div className="flex flex-wrap items-center gap-3 mb-2">
-                    <span className="text-gold-primary font-display text-xl tracking-widest">#{order.order_number}</span>
-                    <span className="text-[10px] px-3 py-1 rounded bg-white/5 uppercase tracking-[0.2em] font-bold text-white border border-white/10">{order.status}</span>
-                  </div>
-                  <p className="text-sm text-text-muted mb-4 uppercase tracking-widest">
-                    Ordered <span className="text-text-secondary font-bold">{new Date(order.created_at).toLocaleDateString()}</span> • Total <span className="text-gold-primary font-bold">₹{order.total_amount}</span>
-                  </p>
-                  
-                  {/* Items Summary */}
-                  <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-                    {order.order_items?.slice(0, 3).map((item: any) => (
-                      <div key={item.id} className="flex items-center gap-2 bg-white/5 pr-3 rounded-full border border-white/5 shrink-0 whitespace-nowrap">
-                        <img src={item.product?.image_url} alt="" className="w-8 h-8 rounded-full object-cover" />
-                        <span className="text-xs text-text-secondary font-medium">{item.quantity}x {item.product?.name}</span>
-                      </div>
-                    ))}
-                    {order.order_items?.length > 3 && (
-                      <span className="text-xs text-text-muted pl-2">+{order.order_items.length - 3} more</span>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="w-full md:w-auto h-full flex flex-col justify-center gap-3 z-10 shrink-0">
-                  {['shipped', 'out_for_delivery', 'assigned', 'picked'].includes(order.status) && (
-                    <button onClick={() => navigate(`/order/${order.id}/track`)} className="w-full md:w-auto group/btn flex items-center justify-center gap-3 px-8 py-4 bg-gold-primary/10 border border-gold-primary/50 text-gold-primary hover:bg-gold-primary text-obsidian rounded-xl transition-all font-bold tracking-widest uppercase text-xs overflow-hidden relative cursor-pointer hover:shadow-[0_0_20px_rgba(212,175,55,0.4)]">
-                      <div className="absolute inset-0 bg-gold-primary translate-y-[100%] group-hover/btn:translate-y-0 transition-transform duration-300"></div>
-                      <span className="relative z-10 group-hover/btn:text-obsidian flex items-center gap-2">Live Tracking <Navigation size={14} className="group-hover/btn:-translate-y-1 group-hover/btn:translate-x-1 transition-transform" /></span>
-                    </button>
-                  )}
-                  {['pending', 'confirmed', 'packed'].includes(order.status) && (
-                    <button disabled className="w-full md:w-auto flex items-center justify-center px-8 py-4 border border-dashed border-text-muted text-text-muted rounded-xl cursor-not-allowed text-xs font-bold tracking-widest uppercase mix-blend-luminosity">
-                      Preparing Transport
-                    </button>
-                  )}
-                  {['delivered'].includes(order.status) && (
-                    <button disabled className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 border border-white/10 text-white/50 rounded-xl cursor-not-allowed text-xs font-bold tracking-widest uppercase">
-                      Delivered <CheckCircle size={14} />
-                    </button>
-                  )}
-                  {['cancelled'].includes(order.status) && (
-                    <button disabled className="w-full md:w-auto flex items-center justify-center gap-2 px-8 py-4 border border-red-500/20 text-red-400 rounded-xl cursor-not-allowed text-xs font-bold tracking-widest uppercase bg-red-500/5">
-                      Cancelled
-                    </button>
-                  )}
-                </div>
+                   {/* Body */}
+                   <div className="p-6 md:p-10 flex flex-col lg:flex-row gap-10 lg:items-center">
+                     
+                     {/* Items List */}
+                     <div className="flex-1 space-y-4">
+                       <p className="text-[10px] uppercase tracking-[0.3em] font-black text-text-secondary opacity-60 mb-4">Secured Extracts</p>
+                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                         {order.order_items?.map((item: any) => (
+                           <div key={item.id} className="flex items-center gap-4 p-3 rounded-2xl border border-glass-border bg-surface-2/20">
+                             <div className="w-12 h-12 rounded-xl bg-obsidian/50 border border-white/5 overflow-hidden shrink-0 flex items-center justify-center">
+                               {item.product?.images?.[0]?.url ? (
+                                 <img src={item.product?.images[0].url} alt="" className="w-full h-full object-cover" />
+                               ) : (
+                                 <Box size={20} className="text-text-muted opacity-30" />
+                               )}
+                             </div>
+                             <div>
+                               <p className="text-sm font-bold text-text-primary truncate">{item.product?.name}</p>
+                               <p className="text-[10px] text-text-muted uppercase tracking-widest mt-1">QTY: {item.quantity} × {formatCurrency(item.price)}</p>
+                             </div>
+                           </div>
+                         ))}
+                       </div>
+                     </div>
 
-              </div>
-            ))}
+                     {/* Action Controls */}
+                     <div className="shrink-0 lg:w-64 space-y-3">
+                       {isActiveTracking && (
+                         <div className="p-1 rounded-2xl bg-gradient-to-r from-gold-primary to-gold-light relative group/btn">
+                           <button 
+                             onClick={() => navigate(`/order/${order.id}/track`)} 
+                             className="w-full h-14 bg-obsidian text-gold-primary rounded-xl flex items-center justify-center gap-3 font-bold tracking-widest uppercase text-[10px] transition-all hover:bg-transparent hover:text-obsidian"
+                           >
+                             <MapPin size={16} /> Live Tracking 
+                           </button>
+                         </div>
+                       )}
+
+                       {['pending', 'confirmed', 'packed'].includes(order.status) && (
+                         <div className="w-full h-14 rounded-2xl border border-dashed border-text-muted/30 flex items-center justify-center gap-3 text-[10px] uppercase font-black tracking-widest text-text-muted bg-surface-2/10 cursor-not-allowed">
+                           Preparing Manifest
+                         </div>
+                       )}
+
+                       {['delivered'].includes(order.status) && (
+                         <div className="w-full h-14 rounded-2xl border border-success/30 flex items-center justify-center gap-3 text-[10px] uppercase font-black tracking-widest text-success bg-success/5 cursor-not-allowed">
+                           <CheckCircle size={16} /> Extraction Secured
+                         </div>
+                       )}
+                       
+                       {['cancelled'].includes(order.status) && (
+                         <div className="w-full h-14 rounded-2xl border border-danger/30 flex items-center justify-center gap-3 text-[10px] uppercase font-black tracking-widest text-danger bg-danger/5 cursor-not-allowed">
+                           Transport Aborted
+                         </div>
+                       )}
+                     </div>
+
+                   </div>
+                 </div>
+               );
+            })}
           </div>
         )}
       </div>

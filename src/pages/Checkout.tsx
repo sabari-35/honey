@@ -116,7 +116,7 @@ export default function Checkout() {
         key: RAZORPAY_KEY,
         amount: Math.round(total * 100), // paise
         currency: 'INR',
-        name: 'Honey Hub Vault',
+        name: 'VRK Farms Vault',
         description: `Order ${order.order_number}`,
         image: '/logo.png',
         notes: { order_id: order.id, order_number: order.order_number },

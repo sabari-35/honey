@@ -51,11 +51,11 @@ export default function Navbar() {
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
-            <Link to="/" className="flex flex-col group" onClick={() => setMobileMenuOpen(false)}>
-              <span className="font-display text-xl md:text-2xl tracking-[0.2em] font-bold text-gold-primary uppercase group-hover:text-gold-light transition-colors whitespace-nowrap">
-                HONEY HUB
-              </span>
-              <span className="text-[0.6rem] tracking-[0.35em] font-sans text-text-muted uppercase mt-0.5 ml-1">
+            <Link to="/" className="flex flex-col group shrink-0 pr-2" onClick={() => setMobileMenuOpen(false)}>
+              <h1 className="font-display text-[1.1rem] sm:text-xl md:text-2xl font-black tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r from-gold-primary to-gold-light drop-shadow-gold whitespace-nowrap">
+                VRK FARMS
+              </h1>
+              <span className="text-[0.55rem] md:text-[0.6rem] tracking-[0.25em] md:tracking-[0.35em] font-sans text-text-muted uppercase mt-0.5 ml-1 whitespace-nowrap">
                 Raw Collection
               </span>
             </Link>

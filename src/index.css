@@ -32,6 +32,24 @@
     min-height: 100vh;
     overflow-x: hidden;
   }
+
+  /* Global Neumorphic Input Design */
+  input, select, textarea {
+    background-color: var(--bg-base) !important;
+    border-radius: 12px !important;
+    box-shadow: inset 4px 4px 8px var(--shadow-dark), 
+                inset -4px -4px 8px var(--shadow-light) !important;
+    border: 1px solid rgba(255, 255, 255, 0.02) !important;
+    color: var(--text-primary) !important;
+    transition: all 0.3s ease;
+    outline: none !important;
+  }
+  
+  input:focus, select:focus, textarea:focus {
+    box-shadow: inset 6px 6px 12px var(--shadow-dark), 
+                inset -6px -6px 12px var(--shadow-light),
+                0 0 0 1px var(--gold-glow) !important;
+  }
 }
 
 @layer utilities {

@@ -4,7 +4,7 @@ import { supabase } from '../../config/supabase';
 import { useAuthStore } from '../../store/authStore';
 import { StarRating } from './StarRating';
 import { Button } from '../ui/Button';
-import { MessageSquare, Calendar, User, CornerDownRight } from 'lucide-react';
+import { MessageSquare, Calendar, User, CornerDownRight, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 interface ReviewSectionProps {
@@ -119,6 +119,17 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
     }
   };
 
+  const handleDeleteReview = async (reviewId: string) => {
+    if (!user) return;
+    try {
+      const { error } = await supabase.from('product_reviews').delete().eq('id', reviewId).eq('user_id', user.id);
+      if (error) throw error;
+      toast.success('Review permanently deleted.');
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to delete review.');
+    }
+  };
+
   const averageRating = reviews?.length 
     ? (reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length).toFixed(1) 
     : 0;
@@ -184,7 +195,16 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
                 </p>
 
                 {/* Actions */}
-                <div className="mt-4 flex justify-end">
+                <div className="mt-4 flex justify-end items-center">
+                  {user?.id === review.user_id && (
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => handleDeleteReview(review.id)} 
+                      className="text-xs uppercase tracking-widest gap-2 text-danger hover:bg-danger/10 opacity-70 hover:opacity-100 mr-2"
+                    >
+                      <Trash2 size={14} /> Delete
+                    </Button>
+                  )}
                   <Button 
                     variant="ghost" 
                     onClick={() => setReplyingTo(replyingTo === review.id ? null : review.id)} 

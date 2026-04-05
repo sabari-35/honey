@@ -146,9 +146,9 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
             </button>
           </div>
           <div className="flex items-center gap-2">
-            <div className={`w-1.5 h-1.5 rounded-full ${isOutOfStock ? 'bg-danger' : isLowStock ? 'bg-warning animate-pulse' : 'bg-success'}`} />
-            <span className={`text-[10px] uppercase tracking-widest font-black ${isOutOfStock ? 'text-danger' : isLowStock ? 'text-warning' : 'text-success'}`}>
-              {isOutOfStock ? 'Sold Out' : isLowStock ? 'Low Stock' : 'In Vault'}
+            <div className={`w-1.5 h-1.5 rounded-full ${isOutOfStock ? 'bg-danger' : isLowStock ? 'bg-warning animate-pulse' : 'bg-gold-primary'}`} />
+            <span className={`text-[10px] uppercase tracking-widest font-black ${isOutOfStock ? 'text-danger' : isLowStock ? 'text-warning' : 'text-text-secondary'}`}>
+              {isOutOfStock ? 'Sold Out' : isLowStock ? `${product.stock_quantity} Left` : `${product.stock_quantity} in stock`}
             </span>
           </div>
         </div>
