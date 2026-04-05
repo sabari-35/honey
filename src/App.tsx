@@ -15,6 +15,7 @@ const Checkout = lazy(() => import('./pages/Checkout'));
 const OrderSuccess = lazy(() => import('./pages/OrderSuccess'));
 const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
+const MyOrders = lazy(() => import('./pages/MyOrders'));
 const CustomerTracking = lazy(() => import('./pages/CustomerTracking'));
 
 // Admin Pages
@@ -51,6 +52,7 @@ const router = createBrowserRouter([
       { path: 'success', element: <PageTransition><OrderSuccess /></PageTransition> },
       { path: 'login', element: <PageTransition><Login /></PageTransition> },
       { path: 'profile', element: <PageTransition><Profile /></PageTransition> },
+      { path: 'orders', element: <PageTransition><MyOrders /></PageTransition> },
       { path: 'order/:id/track', element: <PageTransition><CustomerTracking /></PageTransition> },
     ],
   },

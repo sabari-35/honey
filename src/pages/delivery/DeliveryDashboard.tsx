@@ -13,6 +13,19 @@ export default function DeliveryDashboard() {
 
   useEffect(() => {
     fetchSession();
+
+    // Subscribe to assignments for instant mission popups
+    const fetchSessionSafe = () => fetchSession();
+    const channel = supabase.channel('delivery_dashboard_realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'delivery_assignments' }, () => {
+        toast.success('Assignment grid updated!'); // Alert driver instantly
+        fetchSessionSafe();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   useEffect(() => {
@@ -20,7 +33,7 @@ export default function DeliveryDashboard() {
       // Push location every throttle cycle
       TrackingService.updateLocation({
         delivery_boy_id: deliveryBoy.id,
-        order_id: activeOrder.id,
+        order_id: activeOrder.order_id,
         lat: coords.lat,
         lng: coords.lng,
         speed: coords.speed,
@@ -34,7 +47,14 @@ export default function DeliveryDashboard() {
     if (!user) return; // Handle auth redirect outside or via guard
 
     const { data: boyData } = await supabase.from('delivery_boys').select('*').eq('id', user.id).single();
-    if (boyData) setDeliveryBoy(boyData);
+    if (boyData) {
+      // If the partner opens the portal and is currently 'offline', mark them as 'idle' (online)
+      if (boyData.status === 'offline') {
+        await TrackingService.setDeliveryBoyStatus(boyData.id, 'idle');
+        boyData.status = 'idle';
+      }
+      setDeliveryBoy(boyData);
+    }
 
     const { data: assignmentData } = await supabase
       .from('delivery_assignments')
@@ -123,10 +143,10 @@ export default function DeliveryDashboard() {
                 <div>
                   <div className="flex items-center gap-2 text-gold-primary font-display">
                     <Package size={20} />
-                    <span className="text-lg">Order #{activeOrder.order.order_number}</span>
+                    <span className="text-lg">Order #{activeOrder.order?.order_number || 'HIDDEN'}</span>
                   </div>
                   <p className="text-sm text-gray-400 mt-1 uppercase tracking-widest text-[10px]">Current Status</p>
-                  <p className="font-semibold text-lg uppercase">{activeOrder.order.status === 'pending' ? 'Pending Acceptance' : activeOrder.order.status}</p>
+                  <p className="font-semibold text-lg uppercase">{activeOrder.order?.status === 'pending' ? 'Pending Acceptance' : activeOrder.order?.status || 'Unknown'}</p>
                 </div>
               </div>
 
@@ -136,8 +156,10 @@ export default function DeliveryDashboard() {
                     <MapPin className="text-gold-primary shrink-0 mt-1" size={18} />
                     <div>
                       <p className="text-sm text-gray-400">Delivery Address</p>
-                      <p className="text-base">{activeOrder.order.shipping_address?.address}, {activeOrder.order.shipping_address?.city}</p>
-                      <p className="text-sm text-gray-500">{activeOrder.order.shipping_address?.phone}</p>
+                      <p className="text-base break-words text-white mt-1">
+                        {activeOrder.order?.shipping_address?.label || activeOrder.order?.shipping_address?.address || 'Address Hidden'}
+                      </p>
+                      <p className="text-sm text-gray-500 mt-1">{activeOrder.order?.shipping_address?.phone || 'Phone Hidden'}</p>
                     </div>
                   </div>
                 </div>
@@ -150,13 +172,13 @@ export default function DeliveryDashboard() {
                   </button>
                 )}
                 
-                {activeOrder.status === 'accepted' && activeOrder.order.status !== 'picked' && (
+                {activeOrder.status === 'accepted' && activeOrder.order?.status !== 'picked' && (
                   <button onClick={handlePickUp} className="w-full py-4 bg-blue-600 text-white rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-blue-500 transition-colors">
                     <Package size={20} /> Mark as Picked Up
                   </button>
                 )}
 
-                {activeOrder.order.status === 'picked' && (
+                {activeOrder.order?.status === 'picked' && (
                   <button onClick={handleDeliver} className="w-full py-4 bg-green-600 text-white rounded-lg font-bold flex items-center justify-center gap-2 hover:bg-green-500 transition-colors">
                     <CheckCircle size={20} /> Complete Delivery
                   </button>
@@ -168,6 +190,7 @@ export default function DeliveryDashboard() {
             <div className="h-[400px] md:h-auto min-h-[400px]">
               <LiveMap 
                 deliveryLocation={coords ? { lat: coords.lat, lng: coords.lng } : null} 
+                customerLocation={activeOrder.order?.shipping_address?.lat ? { lat: activeOrder.order.shipping_address.lat, lng: activeOrder.order.shipping_address.lng } : null}
               />
               {!coords && !error && <p className="text-sm text-center text-gray-400 mt-2 animate-pulse">Acquiring GPS Signal...</p>}
               {error && <p className="text-sm text-center text-red-400 mt-2">GPS Error: {error}</p>}

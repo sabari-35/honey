@@ -76,6 +76,12 @@ CREATE POLICY "Admins have full access to delivery_boys" ON public.delivery_boys
 CREATE POLICY "Delivery boys read own profile" ON public.delivery_boys FOR SELECT USING (id = auth.uid());
 CREATE POLICY "Delivery boys update own profile" ON public.delivery_boys FOR UPDATE USING (id = auth.uid());
 CREATE POLICY "Users can request to be delivery boys" ON public.delivery_boys FOR INSERT WITH CHECK (id = auth.uid());
+CREATE POLICY "Customers view assigned delivery boy" ON public.delivery_boys FOR SELECT USING (
+  id IN (
+    SELECT delivery_boy_id FROM public.delivery_assignments
+    WHERE order_id IN (SELECT id FROM public.orders WHERE user_id = auth.uid())
+  )
+);
 
 -- Policies: Delivery Assignments
 CREATE POLICY "Admins have full access to delivery_assignments" ON public.delivery_assignments USING (is_admin());
@@ -95,4 +101,34 @@ CREATE POLICY "Customers read locations of their orders" ON public.delivery_loca
 
 -- Trigger to update delivery_boys updated_at
 CREATE TRIGGER trg_delivery_boys_updated BEFORE UPDATE ON public.delivery_boys FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+-- Special Policy: Allow Delivery Boys to view the orders they are assigned to
+-- We use a SECURITY DEFINER function to break an infinite RLS recursion loop between `orders` and `delivery_assignments`.
+CREATE OR REPLACE FUNCTION is_delivery_boy_for_order(o_id UUID)
+RETURNS BOOLEAN AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.delivery_assignments 
+    WHERE order_id = o_id AND delivery_boy_id = auth.uid()
+  );
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
+CREATE POLICY "Delivery boys read assigned orders" ON public.orders FOR SELECT USING (
+  is_delivery_boy_for_order(id)
+);
+
+-- Trigger to sync latest GPS to delivery_boys table for Admin view
+CREATE OR REPLACE FUNCTION sync_delivery_boy_location()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE public.delivery_boys
+  SET current_lat = NEW.lat, current_lng = NEW.lng, updated_at = NOW()
+  WHERE id = NEW.delivery_boy_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER trg_sync_boy_location
+AFTER INSERT ON public.delivery_locations
+FOR EACH ROW
+EXECUTE FUNCTION sync_delivery_boy_location();
 

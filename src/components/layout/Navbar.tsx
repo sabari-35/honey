@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, Menu, LogOut, ShieldAlert, X } from 'lucide-react';
+import { ShoppingBag, User, Menu, LogOut, ShieldAlert, X, Package } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useUiStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
@@ -103,6 +103,10 @@ export default function Navbar() {
             {/* Profile/Auth */}
             {user ? (
               <div className="flex items-center gap-1 sm:gap-4">
+                <Link to="/orders" className="flex flex-col items-center group px-2" title="Orders">
+                  <Package size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
+                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1 hidden sm:block">Orders</span>
+                </Link>
                 <Link to="/profile" className="flex flex-col items-center group px-2" title="Profile">
                   <User size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
                   <span className="text-[10px] uppercase font-bold text-text-muted mt-1 hidden sm:block">Profile</span>

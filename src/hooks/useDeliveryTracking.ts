@@ -16,17 +16,29 @@ export function useDeliveryTracking(orderId: string) {
   const [location, setLocation] = useState<LocationData | null>(null);
   const [status, setStatus] = useState<string>('idle');
   const [deliveryBoy, setDeliveryBoy] = useState<{ full_name: string; phone: string; vehicle_details: string } | null>(null);
+  const [order, setOrder] = useState<any>(null);
 
   useEffect(() => {
     if (!orderId) return;
 
     // Fetch initial assignment & boy details if any
     const fetchInitialData = async () => {
+      // Order details
+      const { data: orderData } = await supabase
+        .from('orders')
+        .select('*, order_items(*, product:products(*))')
+        .eq('id', orderId)
+        .single();
+        
+      if (orderData) setOrder(orderData);
+
       const { data: assignmentData } = await supabase
         .from('delivery_assignments')
         .select('*, delivery_boy:delivery_boys(full_name, phone, vehicle_details)')
         .eq('order_id', orderId)
-        .eq('status', 'accepted')
+        .in('status', ['pending', 'accepted', 'completed']) // Also fetch if pending or completed to retain driver details
+        .order('assigned_at', { ascending: false })
+        .limit(1)
         .single();
 
       if (assignmentData) {
@@ -49,6 +61,13 @@ export function useDeliveryTracking(orderId: string) {
     };
 
     fetchInitialData();
+
+    const orderChannel = supabase
+      .channel(`orders:id=eq.${orderId}`)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders', filter: `id=eq.${orderId}` }, (payload) => {
+        setOrder((prev: any) => ({ ...prev, ...payload.new }));
+      })
+      .subscribe();
 
     // Subscribe to realtime location updates
     const locationChannel = supabase
@@ -95,10 +114,11 @@ export function useDeliveryTracking(orderId: string) {
       .subscribe();
 
     return () => {
+      supabase.removeChannel(orderChannel);
       supabase.removeChannel(locationChannel);
       supabase.removeChannel(assignmentChannel);
     };
   }, [orderId]);
 
-  return { location, status, deliveryBoy };
+  return { location, status, deliveryBoy, order };
 }

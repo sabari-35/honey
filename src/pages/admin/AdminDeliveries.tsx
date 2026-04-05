@@ -165,8 +165,8 @@ export default function AdminDeliveries() {
                       <span className="text-xs px-2 py-0.5 rounded bg-white/10 text-white uppercase">{order.status}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-gray-400 mt-2">
-                       <MapPin size={14} />
-                       {order.shipping_address?.city || 'Unknown City'}
+                       <MapPin size={14} className="shrink-0" />
+                       <span className="truncate">{order.shipping_address?.city || order.shipping_address?.label || order.shipping_address?.address || 'Unknown Address'}</span>
                     </div>
                   </div>
 

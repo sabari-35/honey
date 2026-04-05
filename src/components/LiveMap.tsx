@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 
@@ -26,18 +26,25 @@ interface LiveMapProps {
 }
 
 // Component to handle smooth panning when location changes
-function MapUpdater({ deliveryLocation }: { deliveryLocation: { lat: number; lng: number } | null }) {
+function MapUpdater({ deliveryLocation, customerLocation, fitBounds = true }: LiveMapProps) {
   const map = useMap();
-  const markerRef = useRef<L.Marker | null>(null);
 
   useEffect(() => {
-    if (deliveryLocation) {
+    if (!deliveryLocation) return;
+    
+    if (customerLocation && fitBounds) {
+      const bounds = L.latLngBounds(
+        [deliveryLocation.lat, deliveryLocation.lng],
+        [customerLocation.lat, customerLocation.lng]
+      );
+      map.flyToBounds(bounds, { padding: [50, 50], duration: 1.5, maxZoom: 16 });
+    } else {
       map.flyTo([deliveryLocation.lat, deliveryLocation.lng], map.getZoom(), {
         animate: true,
         duration: 1.5,
       });
     }
-  }, [deliveryLocation, map]);
+  }, [deliveryLocation, customerLocation, map, fitBounds]);
 
   return null;
 }
@@ -74,7 +81,20 @@ export default function LiveMap({ deliveryLocation, customerLocation, fitBounds 
           </Marker>
         )}
 
-        <MapUpdater deliveryLocation={deliveryLocation} />
+        {deliveryLocation && customerLocation && (
+          <Polyline 
+            positions={[
+              [deliveryLocation.lat, deliveryLocation.lng], 
+              [customerLocation.lat, customerLocation.lng]
+            ]} 
+            color="#3b82f6" 
+            weight={4} 
+            dashArray="10, 10" 
+            className="animate-pulse"
+          />
+        )}
+
+        <MapUpdater deliveryLocation={deliveryLocation} customerLocation={customerLocation} fitBounds={fitBounds} />
       </MapContainer>
     </div>
   );

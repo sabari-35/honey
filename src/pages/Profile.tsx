@@ -4,7 +4,7 @@ import { useAuthStore } from '../store/authStore';
 import { supabase } from '../config/supabase';
 import { Button } from '../components/ui/Button';
 import { Input } from '../components/ui/Input';
-import { User, Phone, MapPin, Save, Link, Truck} from 'lucide-react';
+import { User, Phone, MapPin, Save, Link, Truck, Package, ChevronRight} from 'lucide-react';
 import toast from 'react-hot-toast';
 
 
@@ -30,6 +30,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (user) {
+      // Check delivery status
       supabase.from('delivery_boys').select('is_active').eq('id', user.id).single()
       .then(({ data }) => {
         if (data) {
