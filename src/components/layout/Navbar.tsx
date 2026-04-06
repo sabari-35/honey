@@ -116,6 +116,15 @@ export default function Navbar() {
                   <User size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
                   <span className="text-[10px] uppercase font-bold text-text-muted mt-1">Profile</span>
                 </Link>
+                {/* {user && (
+              <button
+                onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                disabled={isLoggingOut}
+                className="w-full flex items-center gap-3 px-4 py-4 text-lg font-display text-danger tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors disabled:opacity-50"
+              >
+                <LogOut size={20} /> 
+              </button>
+            )} */}
                 <button 
                   onClick={handleLogout} 
                   disabled={isLoggingOut}
@@ -134,6 +143,7 @@ export default function Navbar() {
                 <span className="text-[10px] uppercase font-bold text-text-muted mt-1">Login</span>
               </Link>
             )}
+
           </div>
         </div>
       </div>
@@ -161,21 +171,21 @@ export default function Navbar() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-4 text-lg font-display text-text-primary tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors"
                 >
-                  <Package size={20} className="text-gold-primary" /> Orders
+                  my Orders
                 </Link>
                 <Link
                   to="/store-mode"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-4 text-lg font-display text-text-primary tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors"
                 >
-                  <Package size={20} className="text-gold-primary" /> Store
+                 Offline Store
                 </Link>
                 <Link
                   to="/profile"
                   onClick={() => setMobileMenuOpen(false)}
                   className="flex items-center gap-3 px-4 py-4 text-lg font-display text-text-primary tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors"
                 >
-                  <User size={20} className="text-gold-primary" /> Profile
+                   My Profile
                 </Link>
               </>
             )}
@@ -186,7 +196,7 @@ export default function Navbar() {
                 onClick={() => setMobileMenuOpen(false)}
                 className="flex items-center gap-3 px-4 py-4 text-lg font-display text-gold-primary tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors"
               >
-                <ShieldAlert size={20} /> Admin Dashboard
+                 Admin Dashboard
               </Link>
             )}
 
