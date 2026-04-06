@@ -74,9 +74,10 @@ export default function StoreSales() {
         </div>
 
         {/* Global Stats */}
+        <br /><br />
         <div className="grid grid-cols-2 gap-4">
           <div className="neumorphic-panel p-4 text-center rounded-3xl flex flex-col justify-center">
-             <p className="text-[10px] text-text-muted font-black uppercase tracking-widest mb-1">Owe To Admin</p>
+             <p className="text-[10px] text-text-muted font-black uppercase tracking-widest mb-1">Seller To Admin</p>
              <p className={`text-xl font-display ${myLedger?.outstandingBalance > 0 ? 'text-danger drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'text-success'}`}>
                {formatCurrency(myLedger?.outstandingBalance || 0)}
              </p>

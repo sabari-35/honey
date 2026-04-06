@@ -88,14 +88,14 @@ export default function StoreStock() {
           </div>
           <div className="w-6"></div> {/* spacer */}
         </div>
-
+<br /><br />
         {/* Add Product Button (Admins only) */}
         {isAdmin && !isAddingMode && (
           <button 
             onClick={() => setIsAddingMode(true)}
             className="w-full h-12 flex items-center justify-center gap-2 neumorphic-panel rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] text-gold-primary border border-gold-primary/20 hover:bg-gold-primary/10 transition-all"
           >
-            <Plus size={16} /> Add New Store Product
+            <Plus size={16} /> Add New Product
           </button>
         )}
 
@@ -176,7 +176,7 @@ export default function StoreStock() {
                   ) : (
                     <div className="flex items-center gap-4">
                       <div className="flex flex-col items-end">
-                        <span className="text-[10px] uppercase font-black text-text-muted tracking-widest">Stock</span>
+                        <span className="text-[10px] uppercase font-black text-text-muted tracking-widest">In Stock</span>
                         <span className={`text-lg font-mono font-bold ${product.stock_quantity < 10 ? 'text-danger drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]' : 'text-text-primary'}`}>
                           {product.stock_quantity}
                         </span>

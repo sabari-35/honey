@@ -69,7 +69,7 @@ export default function StoreMode() {
             <p className="text-xl font-display text-gold-primary">{products.length}</p>
           </div>
           <div className="neumorphic-panel p-4 rounded-3xl text-center">
-            <p className="text-[10px] text-text-muted uppercase tracking-widest font-black mb-1">Alerts</p>
+            <p className="text-[10px] text-text-muted uppercase tracking-widest font-black mb-1">Low Stock Alerts</p>
             <p className="text-xl font-display text-danger">
               {products.filter(p => p.stock_quantity < 10).length}
             </p>

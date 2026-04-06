@@ -40,11 +40,11 @@ export function RequestAccessCard() {
     >
       <div className="flex items-center gap-4">
         <div className="w-12 h-12 rounded-2xl neumorphic-inset flex items-center justify-center text-gold-primary">
-          <ShieldCheck size={24} />
+          
         </div>
         <div>
-          <h3 className="text-text-primary font-bold">Store Mode Access</h3>
-          <p className="text-text-muted text-xs">Request approval to manage stock and sales</p>
+          <h3 className="text-text-primary font-bold">Secured</h3>
+          
         </div>
       </div>
       
