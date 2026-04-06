@@ -228,7 +228,7 @@ export default function Process() {
       >
         {/* Background image that zooms on scroll */}
         <div
-          className="hero-bg-zoom absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1473973266408-ed4e27abdd47?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-50"
+          className="hero-bg-zoom absolute inset-0 z-0 bg-[url('/image1.webp')] bg-cover bg-center opacity-50"
           style={{ transformOrigin: 'center center' }}
         />
         <div className="absolute inset-0 z-0 bg-gradient-to-l from-black via-black/40 to-transparent" />
@@ -292,7 +292,7 @@ export default function Process() {
           <video
             ref={videoRef}
             className="w-full h-full object-cover"
-            src="https://www.w3schools.com/html/mov_bbb.mp4"
+            src="/VRK farms.mp4"
             muted loop playsInline
             preload={isLowEnd ? 'metadata' : 'auto'}
           />
