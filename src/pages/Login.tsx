@@ -144,13 +144,13 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen mt-10 pt-20 pb-12 flex flex-col items-center justify-center px-4 relative ">
+    <div className="min-h-screen pt-28 pb-10 flex flex-col items-center justify-center px-4 relative overflow-hidden">
 
       {/* Background Orbs to match Neumorphic aesthetic */}
       <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-gold-primary/5 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-gold-light/5 rounded-full blur-[100px] pointer-events-none" />
 
-      <div className="neumorphic-panel p-8 md:p-12 w-full max-w-md rounded-3xl flex flex-col items-center relative z-10">
+      <div className="neumorphic-panel p-6 sm:p-8 md:p-12 w-full max-w-md rounded-3xl flex flex-col items-center relative z-10">
           {/* <div className="display-inline w-20 h-20 rounded-2xl neumorphic-inset flex items-center justify-center text-gold-primary mb-8 shadow-inner">
             {isSignUp ? <UserPlus size={36} /> : <LogIn size={36} />}
           </div> */}
