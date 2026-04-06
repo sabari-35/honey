@@ -381,9 +381,11 @@ export default function CompactChatbot() {
     // Check for JSON Agent Action
     if (aiText.includes('CREATE_COD_ORDER')) {
       try {
-        const potentialJsonMatch = aiText.match(/\\{.*"action".*\\}/is);
-        if (potentialJsonMatch) {
-          const actionReply = await handleBotOrderAction(potentialJsonMatch[0]);
+        const startIndex = aiText.indexOf('{');
+        const endIndex = aiText.lastIndexOf('}');
+        if (startIndex !== -1 && endIndex !== -1) {
+          const cleanJson = aiText.substring(startIndex, endIndex + 1);
+          const actionReply = await handleBotOrderAction(cleanJson);
           if (actionReply) {
             finalBotText = actionReply;
           }
