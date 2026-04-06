@@ -22,18 +22,25 @@ export default function Dashboard() {
   const { data: statsData } = useQuery({
     queryKey: ['admin-stats'],
     queryFn: async () => {
-      const [ordersRes, profilesRes] = await Promise.all([
+      const [ordersRes, profilesRes, storeSalesRes] = await Promise.all([
         supabase.from('orders').select('total_amount, status'),
-        supabase.from('profiles').select('id', { count: 'exact' })
+        supabase.from('profiles').select('id', { count: 'exact' }),
+        supabase.from('store_sales').select('quantity, price_at_sale')
       ]);
 
       const orders = ordersRes.data || [];
-      const grossVolume = orders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+      const storeSales = storeSalesRes.data || [];
+      
+      const onlineVolume = orders.reduce((sum, o) => sum + Number(o.total_amount), 0);
+      const storeVolume = storeSales.reduce((sum, s) => sum + (s.quantity * s.price_at_sale), 0);
+      
+      const grossVolume = onlineVolume + storeVolume;
       const pendingOrders = orders.filter(o => o.status === 'pending').length;
+      const totalOrders = orders.length + storeSales.length;
 
       return {
         grossVolume,
-        totalOrders: orders.length,
+        totalOrders,
         pendingOrders,
         activeAccounts: profilesRes.count || 0
       };

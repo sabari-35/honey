@@ -18,6 +18,10 @@ const Login = lazy(() => import('./pages/Login'));
 const Profile = lazy(() => import('./pages/Profile'));
 const MyOrders = lazy(() => import('./pages/MyOrders'));
 const CustomerTracking = lazy(() => import('./pages/CustomerTracking'));
+const StoreMode = lazy(() => import('./pages/StoreMode'));
+const StoreAccessPending = lazy(() => import('./pages/StoreAccessPending'));
+const StoreStock = lazy(() => import('./pages/StoreStock'));
+const StoreSales = lazy(() => import('./pages/StoreSales'));
 
 // Admin Pages
 const Dashboard = lazy(() => import('./pages/admin/Dashboard'));
@@ -27,6 +31,8 @@ const Users = lazy(() => import('./pages/admin/Users'));
 const Reviews = lazy(() => import('./pages/admin/Reviews'));
 const AdminDeliveries = lazy(() => import('./pages/admin/AdminDeliveries'));
 const Settings = lazy(() => import('./pages/admin/Settings'));
+const StoreAccessRequests = lazy(() => import('./pages/admin/StoreAccessRequests'));
+const StoreLedger = lazy(() => import('./pages/admin/StoreLedger'));
 
 // Delivery Pages
 const DeliveryLogin = lazy(() => import('./pages/delivery/DeliveryLogin'));
@@ -57,6 +63,11 @@ const router = createBrowserRouter([
       { path: 'profile', element: <PageTransition><Profile /></PageTransition> },
       { path: 'orders', element: <PageTransition><MyOrders /></PageTransition> },
       { path: 'order/:id/track', element: <PageTransition><CustomerTracking /></PageTransition> },
+      { path: 'store-mode', element: <PageTransition><StoreMode /></PageTransition> },
+      { path: 'store-mode/stock', element: <PageTransition><StoreStock /></PageTransition> },
+      { path: 'store-mode/sales', element: <PageTransition><StoreSales /></PageTransition> },
+      { path: 'store-mode/ledger', element: <PageTransition><StoreLedger /></PageTransition> },
+      { path: 'store-access-pending', element: <PageTransition><StoreAccessPending /></PageTransition> },
     ],
   },
   {
@@ -74,6 +85,7 @@ const router = createBrowserRouter([
       { path: 'reviews', element: <PageTransition><Reviews /></PageTransition> },
       { path: 'deliveries', element: <PageTransition><AdminDeliveries /></PageTransition> },
       { path: 'settings', element: <PageTransition><Settings /></PageTransition> },
+      { path: 'store-access', element: <PageTransition><StoreAccessRequests /></PageTransition> },
     ]
   },
   {

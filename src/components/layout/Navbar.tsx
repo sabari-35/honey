@@ -107,6 +107,10 @@ export default function Navbar() {
                   <Package size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
                   <span className="text-[10px] uppercase font-bold text-text-muted mt-1 ">Orders</span>
                 </Link>
+                <Link to="/store-mode" className="flex flex-col items-center group px-2" title="Store Mode">
+                  <Package size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
+                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1 ">Store</span>
+                </Link>
                 <Link to="/profile" className="flex flex-col items-center group px-2" title="Profile">
                   <User size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
                   <span className="text-[10px] uppercase font-bold text-text-muted mt-1 ">Profile</span>

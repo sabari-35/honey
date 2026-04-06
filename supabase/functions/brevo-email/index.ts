@@ -132,6 +132,53 @@ serve(async (req) => {
         </p>
       `, `Clearance Granted, ${payload.driverName}.`)
       
+    } else if (template === 'store_daily_report') {
+      emailOptions.to = [{ email: payload.adminEmail, name: "Admin Vault" }]
+      emailOptions.subject = `VRK Farms: Daily Store Cash Report - ${new Date().toLocaleDateString()}`
+      
+      const salesTable = payload.salesDetailsList.map((item: any) => `
+        <tr>
+          <td style="padding: 10px; border-bottom: 1px solid #222;">${item.name}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #222; text-align: center;">${item.quantity}</td>
+          <td style="padding: 10px; border-bottom: 1px solid #222; text-align: right; color:#D4AF37;">₹${item.total}</td>
+        </tr>
+      `).join('');
+
+      emailOptions.htmlContent = wrapInPremiumContainer(`
+        <p style="color:#cccccc; line-height:1.6; font-size:15px; margin-bottom:20px;">
+          The daily automated reconciliation report has been generated for Vault Terminal: <strong>${payload.storekeeperName}</strong>.
+        </p>
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:30px; margin-bottom:15px; background-color:#151515; border: 1px solid #333333; border-radius: 8px;">
+          <tr>
+            <td style="padding: 20px; text-align: center; border-right: 1px solid #333;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 5px 0;">Items Sold</p>
+              <p style="color:#ffffff; font-size:24px; font-weight:bold; margin:0;">${payload.totalItemsSold}</p>
+            </td>
+            <td style="padding: 20px; text-align: center;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 5px 0;">Total Revenue</p>
+              <p style="color:#D4AF37; font-size:24px; font-weight:bold; margin:0;">₹${payload.totalSalesValue}</p>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:30px; background-color:#111111; color: #fff; font-size: 14px;">
+          <thead>
+            <tr>
+              <th style="padding: 10px; text-align: left; color:#888; font-size:10px; text-transform:uppercase; border-bottom: 1px solid #333;">Item</th>
+              <th style="padding: 10px; text-align: center; color:#888; font-size:10px; text-transform:uppercase; border-bottom: 1px solid #333;">Qty</th>
+              <th style="padding: 10px; text-align: right; color:#888; font-size:10px; text-transform:uppercase; border-bottom: 1px solid #333;">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${salesTable}
+          </tbody>
+        </table>
+
+        <p style="color:#cccccc; line-height:1.6; font-size:15px;">
+          Please open the Store Ledger Dashboard to mark any physical cash collections against this balance.
+        </p>
+      `, `End of Day Report`)
     } else {
       throw new Error(`Unknown email template requested: ${template}`)
     }
