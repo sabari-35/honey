@@ -93,6 +93,7 @@ export default function Checkout() {
           label: address, 
           full_name: fullName, 
           phone,
+          email: user!.email,
           lat: coords?.lat,
           lng: coords?.lng
         },
@@ -193,6 +194,20 @@ export default function Checkout() {
             }
 
             clearCart();
+            // Trigger Brevo Email Route in background
+            if (user?.email) {
+              supabase.functions.invoke('brevo-email', {
+                body: {
+                  template: 'order_placed',
+                  payload: {
+                    orderId: order.order_number,
+                    orderTotal: total,
+                    customerName: fullName,
+                    customerEmail: user.email
+                  }
+                }
+              }).catch(e => console.error("Brevo Email Error:", e));
+            }
             toast.success('Payment verified! Order confirmed. 🎉');
             navigate('/success', { state: { orderNumber: order.order_number, total } });
           } catch (err: any) {
@@ -253,6 +268,20 @@ export default function Checkout() {
       }
 
       clearCart();
+      // Trigger Brevo Email Route in background
+      if (user?.email) {
+        supabase.functions.invoke('brevo-email', {
+          body: {
+            template: 'order_placed',
+            payload: {
+              orderId: order.order_number,
+              orderTotal: total,
+              customerName: fullName,
+              customerEmail: user.email
+            }
+          }
+        }).catch(e => console.error("Brevo Email Error:", e));
+      }
       toast.success('Order placed! Pay ₹' + total + ' on delivery.');
       navigate('/success', { state: { orderNumber: order.order_number, total, isCOD: true } });
     } catch (err: any) {

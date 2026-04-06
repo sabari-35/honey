@@ -65,6 +65,25 @@ export default function AdminDeliveries() {
       // Update order status to assigned
       await supabase.from('orders').update({ status: 'assigned' }).eq('id', orderId);
       
+      // Look up target order & driver for email payload
+      const order = orders.find(o => o.id === orderId);
+      const driver = deliveryBoys.find(d => d.id === deliveryBoyId);
+      
+      if (order?.shipping_address?.email && driver) {
+         supabase.functions.invoke('brevo-email', {
+           body: {
+             template: 'delivery_assigned',
+             payload: {
+               orderId: order.order_number,
+               customerName: order.shipping_address.full_name,
+               customerEmail: order.shipping_address.email,
+               driverName: driver.full_name,
+               driverVehicle: driver.vehicle_details
+             }
+           }
+         }).catch(e => console.error("Admin Email Delivery Trigger Failed:", e));
+      }
+
       toast.success('Assigned order to delivery partner successfully.');
       fetchData();
     } catch (e: any) {

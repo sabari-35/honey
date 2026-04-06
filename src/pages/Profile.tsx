@@ -54,6 +54,21 @@ export default function Profile() {
             is_active: false
         }]);
         if (error) throw error;
+        
+        // Trigger Registration Notification Email (BCC's Admin)
+        if (user?.email) {
+          supabase.functions.invoke('brevo-email', {
+             body: {
+               template: 'driver_registered',
+               payload: {
+                 driverEmail: user.email,
+                 driverName: fullName,
+                 vehicleDetails: vehicleDetails
+               }
+             }
+          }).catch(e => console.error('Driver Registration Email Failed:', e));
+        }
+
         toast.success("Delivery partner request submitted!");
         setDeliveryStatus('pending');
     } catch (e: any) {
