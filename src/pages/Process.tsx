@@ -282,7 +282,7 @@ export default function Process() {
       {/* ══════════════════════════════════════════
           SECTION 2 — IMMERSIVE GOLDEN PORTAL
       ══════════════════════════════════════════ */}
-      <section id="bee-section-2" className="relative w-full h-screen bg-black overflow-hidden">
+      <section id="bee-section-2" className="relative w-full h-screen bg-white overflow-hidden">
 
         {/* Video Layer */}
         <div
@@ -538,8 +538,8 @@ export default function Process() {
         </div>
 
         {/* 3.4 — Welded CTA */}
-        <div className="cta-section h-screen bg-black flex flex-col items-center justify-center relative" style={{ perspective: '2000px' }}>
-          <h2 className="mb-16 text-center leading-none text-white uppercase" style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: 'clamp(4rem, 10vw, 10rem)', letterSpacing: '0.04em' }}>
+        <div className="cta-section h-screen bg-white flex flex-col items-center justify-center relative" style={{ perspective: '2000px' }}>
+          <h2 className="mb-16 text-center leading-none text-black uppercase" style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: 'clamp(4rem, 10vw, 10rem)', letterSpacing: '0.04em' }}>
             Taste the<br />
             <span className="text-transparent" style={{ WebkitTextStroke: '2px #D4AF37' }}>Difference</span>
           </h2>
