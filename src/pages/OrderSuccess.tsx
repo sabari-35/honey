@@ -45,7 +45,7 @@ export default function OrderSuccess() {
         </motion.div>
 
         <div className="space-y-4">
-          <h1 className="font-display text-5xl text-text-primary uppercase tracking-[0.2em]">Transaction Verified</h1>
+          <h1 className="font-display text-4xl sm:text-5xl text-text-primary uppercase tracking-[0.15em]">Order Placed Successfully</h1>
           <p className="text-text-secondary tracking-widest uppercase text-sm">Your extract from the vault is being prepared.</p>
         </div>
 
@@ -78,7 +78,7 @@ export default function OrderSuccess() {
               <ArrowRight size={14} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
             </Button>
           </Link>
-          <Link to="/profile">
+          <Link to="/orders">
             <Button className="gap-2">
               <Package size={18} />
               Track Package

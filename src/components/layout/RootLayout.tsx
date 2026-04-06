@@ -5,6 +5,7 @@ import { useAuthStore } from '../../store/authStore';
 import Navbar from './Navbar';
 import Footer from './Footer';
 import CartDrawer from '../cart/CartDrawer';
+import CompactChatbot from '../chat/CompactChatbot';
 
 export default function RootLayout() {
   const location = useLocation();
@@ -24,7 +25,7 @@ export default function RootLayout() {
   }, [user, profile, location.pathname, navigate]);
 
   return (
-    <div className="flex flex-col min-h-screen bg-obsidian text-text-primary">
+    <div className="flex flex-col min-h-screen bg-obsidian text-text-primary relative">
       <Navbar />
       <main className="flex-1">
         <Outlet />
@@ -32,6 +33,9 @@ export default function RootLayout() {
       <Footer />
       {/* Ensure Cart Drawer is hidden on checkout for a cleaner flow */}
       {!isCheckoutPage && <CartDrawer />}
+      
+      {/* Floating Global Chatbot */}
+      <CompactChatbot />
     </div>
   );
 }

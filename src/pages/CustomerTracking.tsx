@@ -123,14 +123,22 @@ export default function CustomerTracking() {
           {/* Map Area */}
           <div className="md:col-span-2 h-[500px] min-h-[500px] neumorphic-panel rounded-3xl p-2 relative overflow-hidden">
             {status !== 'pending' && deliveryBoy ? (
-              <LiveMap 
-                deliveryLocation={location ? { lat: location.lat, lng: location.lng } : null} 
-                customerLocation={order?.shipping_address?.lat ? { lat: order.shipping_address.lat, lng: order.shipping_address.lng } : null}
-              />
+              location || order?.shipping_address?.lat ? (
+                <LiveMap 
+                  deliveryLocation={location ? { lat: location.lat, lng: location.lng } : null} 
+                  customerLocation={order?.shipping_address?.lat ? { lat: order.shipping_address.lat, lng: order.shipping_address.lng } : null}
+                  customerAddress={order?.shipping_address?.label || order?.shipping_address?.addressLine || 'India'}
+                />
+              ) : (
+                <div className="w-full h-full bg-black/40 rounded-2xl border border-white/5 flex flex-col items-center justify-center text-gray-400 space-y-4">
+                  <div className="w-12 h-12 border-2 border-dashed border-gold-primary/30 rounded-full animate-spin"></div>
+                  <span className="font-display tracking-[0.2em] text-sm uppercase">Vectoring Partner GPS...</span>
+                </div>
+              )
             ) : (
               <div className="w-full h-full bg-black/40 rounded-2xl border border-white/5 flex flex-col items-center justify-center text-gray-400 space-y-4">
                 <MapPin size={32} className="text-gold-primary/30 animate-bounce" />
-                <span className="font-display tracking-[0.2em] text-sm uppercase">Waiting for GPS Coordinates...</span>
+                <span className="font-display tracking-[0.2em] text-sm uppercase text-center max-w-sm">Awaiting Partner Assignment...</span>
               </div>
             )}
           </div>

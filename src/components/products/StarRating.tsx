@@ -38,13 +38,15 @@ export function StarRating({
             type="button"
             disabled={!editable}
             onClick={() => {
-              if (editable) onChange?.(displayRating);
+              if (editable) {
+                // Submit the exact star index they are clicking, bypassing complex hover states
+                onChange?.(star);
+              }
             }}
-            onMouseMove={(e) => {
+            onMouseMove={() => {
               if (!editable) return;
-              const rect = e.currentTarget.getBoundingClientRect();
-              const isLeftHalf = e.clientX - rect.left < (rect.width / 2);
-              setHoverRating(star - (isLeftHalf ? 0.5 : 0));
+              // Snap strictly to whole numbers to prevent UI drift and DB cast mutations
+              setHoverRating(star);
             }}
             className={editable ? 'cursor-pointer active:scale-95' : 'cursor-default'}
           >

@@ -65,8 +65,21 @@ export default function Checkout() {
   // ─────────────────────────────────────────────────────────
   // SHARED: Create a base order record
   // ─────────────────────────────────────────────────────────
+  const getCoordinates = (): Promise<{lat: number, lng: number} | null> => {
+    return new Promise((resolve) => {
+      if (!navigator.geolocation) return resolve(null);
+      navigator.geolocation.getCurrentPosition(
+        (pos) => resolve({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => resolve(null),
+        { timeout: 5000, enableHighAccuracy: false } // fast fallback without locking UI
+      );
+    });
+  };
+
   const createOrderRecord = async (status: string, paymentStatus: string) => {
+    const coords = await getCoordinates();
     const orderNumber = `GV-${new Date().getFullYear()}-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    
     const { data: order, error } = await supabase
       .from('orders')
       .insert([{
@@ -76,7 +89,13 @@ export default function Checkout() {
         shipping_amount: shipping,
         cod_charge: codFee,
         total_amount: total,
-        shipping_address: { label: address, full_name: fullName, phone },
+        shipping_address: { 
+          label: address, 
+          full_name: fullName, 
+          phone,
+          lat: coords?.lat,
+          lng: coords?.lng
+        },
         status,
         payment_status: paymentStatus,
       }])

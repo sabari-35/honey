@@ -49,9 +49,10 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
       .channel(`reviews-${productId}`)
       .on(
         'postgres_changes',
-        { event: '*', schema: 'public', table: 'product_reviews', filter: `product_id=eq.${productId}` },
+        { event: '*', schema: 'public', table: 'product_reviews' },
         () => {
           queryClient.invalidateQueries({ queryKey: ['product-reviews', productId] });
+          queryClient.invalidateQueries({ queryKey: ['product-reviews-rating', productId] });
         }
       )
       .on(

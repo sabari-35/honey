@@ -5,7 +5,7 @@ import { formatCurrency } from '../../utils/formatCurrency';
 import { useCartStore } from '../../store/cartStore';
 import { useUiStore } from '../../store/uiStore';
 import { supabase } from '../../config/supabase';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { StarRating } from './StarRating';
 import { WriteReviewModal } from './WriteReviewModal';
 import toast from 'react-hot-toast';
@@ -38,11 +38,13 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
     ? reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length 
     : 0;
   const reviewCount = reviews?.length || 0;
+  
+  const queryClient = useQueryClient();
 
-  // Subscribe to realtime stock changes for this product
+  // Subscribe to realtime stock and review changes for this product
   useEffect(() => {
     const channel = supabase
-      .channel(`product-stock-${product.id}`)
+      .channel(`product-updates-${product.id}`)
       .on(
         'postgres_changes',
         {
@@ -56,12 +58,25 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
           setProduct((prev: any) => ({ ...prev, ...payload.new }));
         }
       )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'product_reviews'
+        },
+        () => {
+          // Instantly fetch newest rating count on review change (add/edit/delete)
+          // We removed the filter because PostgreSQL DEL payload lacks product_id by default
+          queryClient.invalidateQueries({ queryKey: ['product-reviews-rating', product.id] });
+        }
+      )
       .subscribe();
 
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [product.id]);
+  }, [product.id, queryClient]);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.preventDefault();

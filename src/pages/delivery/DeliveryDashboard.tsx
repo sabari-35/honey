@@ -191,6 +191,7 @@ export default function DeliveryDashboard() {
               <LiveMap 
                 deliveryLocation={coords ? { lat: coords.lat, lng: coords.lng } : null} 
                 customerLocation={activeOrder.order?.shipping_address?.lat ? { lat: activeOrder.order.shipping_address.lat, lng: activeOrder.order.shipping_address.lng } : null}
+                customerAddress={activeOrder.order?.shipping_address?.label || activeOrder.order?.shipping_address?.addressLine || 'India'}
               />
               {!coords && !error && <p className="text-sm text-center text-gray-400 mt-2 animate-pulse">Acquiring GPS Signal...</p>}
               {error && <p className="text-sm text-center text-red-400 mt-2">GPS Error: {error}</p>}
