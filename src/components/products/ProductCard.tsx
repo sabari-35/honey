@@ -173,12 +173,12 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
           onClick={handleAddToCart}
           disabled={isOutOfStock}
           className="mt-2 w-full flex items-center justify-center gap-2 py-3.5 rounded-2xl text-sm font-bold tracking-widest uppercase transition-all duration-300 cursor-pointer
-            bg-gold-primary/10 border border-gold-primary/30 text-gold-primary 
+            bg-gold-primary border border-gold-primary/30 text-black 
             hover:bg-gold-primary hover:text-obsidian hover:border-gold-primary hover:shadow-[0_4px_20px_rgba(212,175,55,0.4)]
             disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-gold-primary/10 disabled:hover:text-gold-primary"
         >
           <ShoppingBag size={16} />
-          {isOutOfStock ? 'Sold Out' : 'Add to Vault'}
+          {isOutOfStock ? 'Sold Out' : 'Add to Cart'}
         </button>
       </div>
 
