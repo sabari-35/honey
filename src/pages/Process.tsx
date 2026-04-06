@@ -7,6 +7,12 @@ import { ChevronDown, Play } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
+// ── Cinematic Google Fonts ──────────────────────────────────────────────────
+const fontLink = document.createElement('link');
+fontLink.rel = 'stylesheet';
+fontLink.href = 'https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Anton&family=Oswald:wght@600;700&display=swap';
+if (!document.head.querySelector('[href*="Bebas+Neue"]')) document.head.appendChild(fontLink);
+
 const processSteps = [
   { time: 'PHASE 01', title: 'Wild Foraging', sub: 'Free-range colonies in pesticide-free habitats', note: 'The Origin' },
   { time: 'PHASE 02', title: 'Comb Matrix', sub: 'Bees condense nectar into thick raw honey', note: 'Inside the Hive' },
@@ -235,28 +241,29 @@ export default function Process() {
             {/* Meta badge */}
             <div
               ref={metaRef}
-              className="flex items-center gap-3 px-6 py-2 rounded-full border border-yellow-600/30 bg-black/50 backdrop-blur-md"
+              
             >
-              <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
-              <span className="text-yellow-500 text-[10px] font-black tracking-[0.4em] uppercase">Pure Honey · VRK Farms</span>
+              
+              {/* <span className="text-yellow-500 text-[10px] tracking-[0.5em] uppercase" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 700, letterSpacing: '0.45em' }}>Pure Honey · VRK F</span> */}
             </div>
 
             {/* Main title */}
             <h1
               ref={titleRef}
-              className="font-black text-5xl md:text-8xl lg:text-9xl bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-700 bg-clip-text text-transparent tracking-tighter leading-none italic drop-shadow-2xl"
-              style={{ willChange: 'transform' }}
+              className="text-5xl md:text-8xl lg:text-9xl bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-700 bg-clip-text text-transparent leading-none drop-shadow-2xl"
+              style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', letterSpacing: '0.04em', willChange: 'transform' }}
             >
               BEE FARMING<br />
-              <span className="text-white/90 not-italic text-4xl md:text-5xl tracking-widest font-light">BY NATURE</span>
+              <span className="text-white/80" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 300, fontSize: '0.45em', letterSpacing: '0.35em', display: 'block' }}>BY NATURE</span>
             </h1>
 
             {/* Description */}
             <p
               ref={descRef}
-              className="text-lg md:text-2xl text-white/75 leading-relaxed font-medium max-w-xl drop-shadow-lg"
+              className="text-lg md:text-xl text-white/70 leading-relaxed max-w-xl drop-shadow-lg"
+              style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 300, letterSpacing: '0.06em' }}
             >
-              From <strong className="text-yellow-300">wild habitats</strong> to glass jars —{' '}
+              From <strong className="text-yellow-300" style={{ fontWeight: 700 }}>wild habitats</strong> to glass jars —{' '}
               <em>zero heat, zero compromise</em>. Pure raw honey extracted
               the way nature intended.
             </p>
@@ -265,7 +272,7 @@ export default function Process() {
 
         {/* Scroll indicator */}
         <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3">
-          <span className="text-[10px] tracking-[1em] text-yellow-500 font-black animate-pulse uppercase whitespace-nowrap">
+          <span className="text-[10px] animate-pulse uppercase whitespace-nowrap text-yellow-500" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 600, letterSpacing: '0.9em' }}>
             Keep Scrolling
           </span>
           <div className="w-px h-16 bg-gradient-to-b from-yellow-500 to-transparent" />
@@ -303,7 +310,7 @@ export default function Process() {
           <div className="flex justify-between items-start">
             <div className="bee-hud">
               <div className="backdrop-blur-2xl border border-yellow-600/30 p-5 rounded-[2.5rem] bg-black/40">
-                <p className="text-yellow-500 font-mono text-[10px] tracking-[0.4em] uppercase">VRK Farms · Raw Collection</p>
+                <p className="text-yellow-500 font-mono text-[10px] tracking-[0.4em] uppercase">Explore</p>
               </div>
             </div>
             <div className="bee-hud text-yellow-600/10 font-black text-[12vw] tracking-tighter italic select-none">HONEY</div>
@@ -407,15 +414,15 @@ export default function Process() {
             {/* Content */}
             <div className="text-center px-10 relative z-10" style={{ opacity: isPlaying ? 0 : 1, transition: 'all 0.6s ease' }}>
               <div className="mb-8 inline-block px-6 py-2 rounded-full border border-yellow-600/50 bg-black/80 backdrop-blur-sm">
-                <span className="text-[10px] font-black text-yellow-400 tracking-[0.5em] uppercase italic">
-                  VRK Farms · Raw Collection
+                <span className="text-yellow-400 text-[10px] uppercase tracking-[0.5em]" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 600 }}>
+                   Scroll to Explore
                 </span>
               </div>
-              <h2 className="text-black text-[8vw] font-black italic tracking-tighter leading-[0.85] mb-8">
-                PURE<br />HONEY
+              <h2 className="text-black leading-[0.85] mb-8" style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: '8vw', letterSpacing: '0.05em' }}>
+                PURE<br />Bliss
               </h2>
-              <p className="text-black/60 font-mono text-[9px] tracking-[1em] uppercase">
-                Scroll to Explore
+              <p className="text-black/60 text-[9px] uppercase tracking-[1em]" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 400 }}>
+               
               </p>
             </div>
 
@@ -434,7 +441,10 @@ export default function Process() {
         <div className="hero-morph h-screen flex items-center justify-center bg-black overflow-hidden relative">
           <div className="background-mesh absolute inset-0 opacity-0 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
 
-          <h1 className="flex flex-wrap justify-center text-[11vw] md:text-[13vw] font-black uppercase tracking-tighter leading-none italic z-20 px-4">
+          <h1
+            className="flex flex-wrap justify-center uppercase leading-none z-20 px-4"
+            style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: 'clamp(4rem, 13vw, 14rem)', letterSpacing: '0.03em' }}
+          >
             {'RAW HONEY'.split('').map((c, i) => (
               <span key={i} className="liquid-char inline-block" style={{ transformStyle: 'preserve-3d', color: c === ' ' ? 'transparent' : 'white' }}>
                 {c === ' ' ? '\u00A0' : c}
@@ -444,26 +454,26 @@ export default function Process() {
 
           <div className="absolute bottom-10 flex flex-col items-center gap-4">
             <div className="w-px h-20 bg-gradient-to-b from-zinc-700 to-yellow-500" />
-            <span className="text-[10px] tracking-[1.5em] text-yellow-500 uppercase font-bold animate-pulse">Keep Scrolling</span>
+            <span className="text-[10px] text-yellow-500 uppercase animate-pulse" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 600, letterSpacing: '1.4em' }}>Keep Scrolling</span>
           </div>
         </div>
 
         {/* 3.2 — Glass Refraction Grid */}
         <div className="glass-section min-h-screen bg-[#f4f4f4] flex items-center justify-center relative py-20 px-6 md:px-10">
           <div className="absolute inset-0 flex items-center justify-center opacity-[0.07] select-none overflow-hidden pointer-events-none">
-            <h2 className="text-[40vw] font-black text-black">FARM</h2>
+            <h2 className="text-black" style={{ fontFamily: '"Bebas Neue", sans-serif', fontSize: '40vw', lineHeight: 1 }}>FARM</h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10 z-10 w-full max-w-7xl">
             {[
               {
-                session: 'Morning Harvest',
+                session: '',
                 products: ['Pure Raw Honey', 'Honey Comb Cake'],
                 tagline: 'Extracted before dawn — rich, thick & alive.',
               },
               {
-                session: 'Afternoon Farm',
-                products: ['Amla Murabba', 'Turmeric · Coconut'],
+                session: '',
+                products: ['Amla Murabba', 'Turmeric Powder','Coconut'],
                 tagline: 'From pesticide-free soil, untouched by chemicals.',
               }
             ].map((item, i) => (
@@ -473,18 +483,18 @@ export default function Process() {
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
                 <div className="relative">
-                  <span className="text-yellow-600 font-black text-sm tracking-widest uppercase">{item.session}</span>
+                  <span className="text-yellow-600 text-sm uppercase tracking-widest" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 600 }}>{item.session}</span>
                   <div className="h-12" />
                   {item.products.map((p, j) => (
-                    <h3 key={j} className="text-5xl md:text-6xl font-black mt-4 tracking-tighter leading-none uppercase">{p}</h3>
+                    <h3 key={j} className="mt-4 leading-none uppercase" style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: 'clamp(2.5rem, 5vw, 4rem)', letterSpacing: '0.04em' }}>{p}</h3>
                   ))}
-                  <p className="mt-6 text-zinc-500 text-sm tracking-wide leading-relaxed">{item.tagline}</p>
+                  <p className="mt-6 text-zinc-500 text-sm leading-relaxed" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 300, letterSpacing: '0.08em' }}>{item.tagline}</p>
                 </div>
                 <div className="relative flex items-center gap-4 mt-8">
                   <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center">
                     <div className="w-2 h-2 bg-yellow-500 rounded-full animate-ping" />
                   </div>
-                  <p className="text-xs uppercase font-bold tracking-widest text-zinc-400">VRK Certified Pure</p>
+                  <p className="text-xs uppercase text-zinc-400" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 600, letterSpacing: '0.3em' }}>Pure</p>
                 </div>
               </div>
             ))}
@@ -494,7 +504,7 @@ export default function Process() {
         {/* 3.3 — Cinematic Process Agenda */}
         <div className="agenda-wrapper relative h-screen w-full flex items-center justify-center overflow-hidden bg-white">
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
-            <h2 className="text-[20vw] font-black text-zinc-50">PROCESS</h2>
+            <h2 className="text-zinc-50" style={{ fontFamily: '"Bebas Neue", sans-serif', fontSize: '20vw', letterSpacing: '0.05em', lineHeight: 1 }}>PROCESS</h2>
           </div>
 
           {/* Vertical flow line */}
@@ -509,18 +519,18 @@ export default function Process() {
                 className="agenda-item absolute inset-0 flex flex-col items-center justify-center text-center p-10"
                 style={{ transformStyle: 'preserve-3d' }}
               >
-                <span className="text-yellow-500 font-black text-2xl tracking-[0.3em] mb-4">{item.time}</span>
-                <h3 className="agenda-title text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold uppercase text-center leading-[0.85] mb-6">
+                <span className="text-yellow-500 mb-4 block" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 700, fontSize: '1.4rem', letterSpacing: '0.35em' }}>{item.time}</span>
+                <h3 className="agenda-title uppercase text-center leading-[0.85] mb-6" style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: 'clamp(3rem, 8vw, 7rem)', letterSpacing: '0.04em' }}>
                   {item.title}
                 </h3>
                 <div className="flex items-center gap-6">
                   <div className="h-px w-12 bg-yellow-500" />
-                  <p className="text-sm uppercase tracking-[0.5em] font-bold text-zinc-400">{item.sub}</p>
+                  <p className="text-sm uppercase text-zinc-400" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 400, letterSpacing: '0.45em' }}>{item.sub}</p>
                   <div className="h-px w-12 bg-yellow-500" />
                 </div>
                 <div className="absolute bottom-0 right-0 flex flex-col items-end opacity-30">
-                  <span className="text-[10px] font-black uppercase tracking-widest">{item.note}</span>
-                  <span className="text-[10px] font-black text-yellow-600">VRK FARMS</span>
+                  <span className="text-[10px] uppercase tracking-widest" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 700 }}>{item.note}</span>
+                  <span className="text-[10px] text-yellow-600" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 700 }}>VRK FARMS</span>
                 </div>
               </div>
             ))}
@@ -529,7 +539,7 @@ export default function Process() {
 
         {/* 3.4 — Welded CTA */}
         <div className="cta-section h-screen bg-black flex flex-col items-center justify-center relative" style={{ perspective: '2000px' }}>
-          <h2 className="text-[10vw] font-black uppercase tracking-tighter mb-16 text-center leading-none text-white">
+          <h2 className="mb-16 text-center leading-none text-white uppercase" style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: 'clamp(4rem, 10vw, 10rem)', letterSpacing: '0.04em' }}>
             Taste the<br />
             <span className="text-transparent" style={{ WebkitTextStroke: '2px #D4AF37' }}>Difference</span>
           </h2>
@@ -542,27 +552,27 @@ export default function Process() {
               to="/shop"
               className="relative inline-block px-24 py-12 bg-yellow-500 text-black shadow-[0_40px_80px_rgba(212,175,55,0.3)] hover:shadow-[0_20px_40px_rgba(212,175,55,0.7)] transition-all duration-700 overflow-hidden rounded-2xl group active:scale-95"
             >
-              <span className="relative z-10 text-2xl md:text-3xl font-black uppercase tracking-[0.3em] group-hover:text-black transition-colors">
+              <span className="relative z-10 group-hover:text-black transition-colors uppercase" style={{ fontFamily: '"Bebas Neue", "Anton", sans-serif', fontSize: 'clamp(1.6rem, 3vw, 2.4rem)', letterSpacing: '0.35em' }}>
                 SHOP NOW
               </span>
               <div className="absolute inset-0 bg-gradient-to-t from-yellow-700/60 via-transparent to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
             </Link>
           </div>
 
-          <div className="mt-24 flex flex-col items-center">
-            <span className="text-[10px] tracking-[1em] text-zinc-600 uppercase font-bold italic">VRK Farms · Raw Collection · 2026</span>
-          </div>
+          {/* <div className="mt-24 flex flex-col items-center">
+            <span className="text-[10px] text-zinc-600 uppercase italic" style={{ fontFamily: '"Oswald", sans-serif', fontWeight: 400, letterSpacing: '0.9em' }}>VRK Farms · Raw Collection · 2026</span>
+          </div> */}
         </div>
       </section>
 
       <style>{`
         .agenda-title {
-          letter-spacing: 0.08em;
-          -webkit-text-stroke: 1px #000;
+          font-family: 'Bebas Neue', 'Anton', sans-serif;
+          -webkit-text-stroke: 1.5px #111;
           text-shadow:
-            0 4px 10px rgba(0,0,0,0.15),
-            0 10px 30px rgba(0,0,0,0.1),
-            0 0 40px rgba(212,175,55,0.2);
+            0 6px 16px rgba(0,0,0,0.25),
+            0 12px 40px rgba(0,0,0,0.15),
+            0 0 60px rgba(212,175,55,0.25);
         }
         .liquid-char { transform-style: preserve-3d; }
         .welded-btn-wrap { transform-style: preserve-3d; }
