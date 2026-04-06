@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -14,10 +15,27 @@ serve(async (req) => {
   try {
     const { template, payload } = await req.json()
     const BREVO_API_KEY = Deno.env.get('BREVO_API_KEY')
+    const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!
+    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
 
     if (!BREVO_API_KEY) {
       throw new Error("BREVO_API_KEY is missing from Edge Function secrets.")
     }
+
+    // Admin Supabase client (service role — can query auth.users)
+    const adminSupabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+
+    // Helper: resolve emails from user IDs via auth.admin
+    const resolveEmails = async (userIds: string[]): Promise<string[]> => {
+      if (!userIds || userIds.length === 0) return []
+      const emails: string[] = []
+      for (const uid of userIds) {
+        const { data } = await adminSupabase.auth.admin.getUserById(uid)
+        if (data?.user?.email) emails.push(data.user.email)
+      }
+      return emails
+    }
+
 
     // VRK Farms specific sender details
     let emailOptions: any = {
@@ -179,6 +197,79 @@ serve(async (req) => {
           Please open the Store Ledger Dashboard to mark any physical cash collections against this balance.
         </p>
       `, `End of Day Report`)
+    } else if (template === 'store_sale_notification') {
+      const adminEmails = await resolveEmails(payload.adminIds || [])
+      emailOptions.to = adminEmails.map((e: string) => ({ email: e, name: 'Admin' }))
+      if (emailOptions.to.length === 0) throw new Error('No admin emails resolved for sale notification')
+      emailOptions.subject = `🛒 VRK Store Sale: ${payload.productName} × ${payload.quantity}`
+      emailOptions.htmlContent = wrapInPremiumContainer(`
+        <p style="color:#cccccc; line-height:1.6; font-size:15px; margin-bottom:24px;">
+          A sale was recorded at the VRK Store terminal by <strong style="color:#D4AF37;">${payload.sellerName}</strong>.
+        </p>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:24px; background-color:#151515; border-left:4px solid #D4AF37; border-radius:4px;">
+          <tr><td style="padding:20px 24px;">
+            <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;">Product</p>
+            <p style="color:#ffffff; font-size:20px; font-weight:bold; margin:0;">${payload.productName}</p>
+          </td></tr>
+        </table>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:24px; background-color:#111111; border:1px solid #333333; border-radius:8px;">
+          <tr>
+            <td style="padding:18px 20px; text-align:center; border-right:1px solid #333;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 5px 0;">Qty Sold</p>
+              <p style="color:#ffffff; font-size:26px; font-weight:bold; margin:0;">${payload.quantity}</p>
+            </td>
+            <td style="padding:18px 20px; text-align:center; border-right:1px solid #333;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 5px 0;">Unit Price</p>
+              <p style="color:#D4AF37; font-size:26px; font-weight:bold; margin:0;">₹${payload.priceAtSale}</p>
+            </td>
+            <td style="padding:18px 20px; text-align:center;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 5px 0;">Total</p>
+              <p style="color:#D4AF37; font-size:26px; font-weight:bold; margin:0;">₹${payload.totalValue}</p>
+            </td>
+          </tr>
+        </table>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:20px; background-color:#111111; border:1px solid #333; border-radius:8px;">
+          <tr>
+            <td style="padding:16px 20px; border-right:1px solid #333;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 4px 0;">Stock Remaining</p>
+              <p style="color:${payload.remainingStock <= 10 ? '#FF4444' : '#ffffff'}; font-size:18px; font-weight:bold; margin:0;">${payload.remainingStock} units</p>
+            </td>
+            <td style="padding:16px 20px;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 4px 0;">Time of Sale</p>
+              <p style="color:#ffffff; font-size:14px; margin:0;">${payload.saleTime}</p>
+            </td>
+          </tr>
+        </table>
+        ${payload.remainingStock <= 10 ? `<div style="background-color:#3d1a1a; border:1px solid #FF4444; border-radius:8px; padding:16px 20px;"><p style="color:#FF4444; font-size:13px; font-weight:bold; text-transform:uppercase; letter-spacing:2px; margin:0;">⚠ Low Stock Warning — Only ${payload.remainingStock} units left.</p></div>` : ''}
+      `, `New Store Sale`)
+
+    } else if (template === 'store_low_stock_alert') {
+      const adminEmailsLow = await resolveEmails(payload.adminIds || [])
+      emailOptions.to = adminEmailsLow.map((e: string) => ({ email: e, name: 'Admin' }))
+      if (emailOptions.to.length === 0) throw new Error('No admin emails resolved for low stock alert')
+      emailOptions.subject = `⚠️ VRK Store: Low Stock Alert — ${payload.productName}`
+      emailOptions.htmlContent = wrapInPremiumContainer(`
+        <div style="background-color:#3d1a1a; border-left:4px solid #FF4444; border-radius:4px; padding:20px 24px; margin-bottom:24px;">
+          <p style="color:#FF4444; font-size:16px; font-weight:bold; text-transform:uppercase; letter-spacing:2px; margin:0;">⚠ Immediate Restocking Required</p>
+        </div>
+        <p style="color:#cccccc; line-height:1.6; font-size:15px; margin-bottom:24px;">
+          The following product has fallen to critically low stock levels after a sale recorded by <strong style="color:#D4AF37;">${payload.sellerName}</strong>.
+        </p>
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-bottom:28px; background-color:#111111; border:1px solid #FF4444; border-radius:8px;">
+          <tr><td style="padding:22px 24px; border-bottom:1px solid #333;">
+            <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 6px 0;">Product</p>
+            <p style="color:#ffffff; font-size:22px; font-weight:bold; margin:0;">${payload.productName}</p>
+          </td></tr>
+          <tr><td style="padding:22px 24px; text-align:center;">
+            <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 8px 0;">Current Stock Level</p>
+            <p style="color:#FF4444; font-size:48px; font-weight:900; margin:0;">${payload.remainingStock}</p>
+            <p style="color:#888888; font-size:12px; text-transform:uppercase; letter-spacing:2px; margin:4px 0 0 0;">units remaining</p>
+          </td></tr>
+        </table>
+        <p style="color:#cccccc; line-height:1.6; font-size:15px;">
+          Please log into the VRK Store Admin panel to replenish stock immediately.
+        </p>
+      `, `Low Stock Alert`)
     } else {
       throw new Error(`Unknown email template requested: ${template}`)
     }

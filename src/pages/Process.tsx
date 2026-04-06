@@ -1,197 +1,584 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useLayoutEffect, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Navbar from '../components/layout/Navbar';
+import { Link } from 'react-router-dom';
+import { ChevronDown, Play } from 'lucide-react';
 
 gsap.registerPlugin(ScrollTrigger);
 
-const products = [
-  { name: 'Pure Honey', nameTm: 'மலைத்தேன்', desc: '100% Pure Raw Honey extracted without heat.', img: 'https://images.unsplash.com/photo-1587049352847-8d4e894155db?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Honey Comb Cake', nameTm: 'தேன் அடை', desc: 'Fresh from the hive, chewy and rich in pollen.', img: 'https://images.unsplash.com/photo-1616788880373-c36195c6fddb?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Amla Murabba', nameTm: 'தேன் நெல்லி', desc: 'Amla soaked organically in raw honey for months.', img: 'https://images.unsplash.com/photo-1631526437340-e14b14d59f3c?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Amla Candy', nameTm: 'நெல்லி மிட்டாய்', desc: 'Sweet & sour natural candy. High Vitamin C.', img: 'https://images.unsplash.com/photo-1579619575883-7c154316d2ca?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Turmeric Powder', nameTm: 'மஞ்சள் தூள்', desc: 'Organic stone-ground high curcumin turmeric.', img: 'https://images.unsplash.com/photo-1615486171447-4981d7f0ecfb?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Country Chicken', nameTm: 'நாட்டுக்கோழி', desc: 'Free-range countryside chicken fed on natural grains.', img: 'https://images.unsplash.com/photo-1548550023-2bf3c49b338c?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Tender Coconut', nameTm: 'இளநீர்', desc: 'Refreshing farm tender coconut direct from palms.', img: 'https://images.unsplash.com/photo-1582282577239-4dbeba4b7264?q=80&w=1000&auto=format&fit=crop' },
-  { name: 'Coconut', nameTm: 'தேங்காய்', desc: 'Fresh mature farm coconuts for culinary perfection.', img: 'https://images.unsplash.com/photo-1550828520-4cb4969268d0?q=80&w=1000&auto=format&fit=crop' }
+const processSteps = [
+  { time: 'PHASE 01', title: 'Wild Foraging', sub: 'Free-range colonies in pesticide-free habitats', note: 'The Origin' },
+  { time: 'PHASE 02', title: 'Comb Matrix', sub: 'Bees condense nectar into thick raw honey', note: 'Inside the Hive' },
+  { time: 'PHASE 03', title: 'Cold Extraction', sub: 'Centrifugal force, zero heat — enzymes preserved', note: 'Cold Process' },
+  { time: 'PHASE 04', title: 'Raw Bottling', sub: 'Unfiltered, unpasteurized, poured into glass', note: 'Pure Form' },
+  { time: 'PHASE 05', title: 'Farm Harvest', sub: 'Amla, turmeric & coconut sourced beside the hive', note: 'Full Collection' },
+  { time: 'PHASE 06', title: 'Delivered Fresh', sub: 'Straight from VRK Farms to your doorstep', note: 'Zero Middlemen' },
 ];
 
 export default function Process() {
   const containerRef = useRef<HTMLDivElement>(null);
-  
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const descRef = useRef<HTMLParagraphElement>(null);
+  const metaRef = useRef<HTMLDivElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
+  const glassInnerRef = useRef<HTMLDivElement>(null);
+  const glowRef = useRef<HTMLDivElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const [isFullyEntered, setIsFullyEntered] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [isLowEnd, setIsLowEnd] = useState(false);
+
+  // Detect low-end devices
   useEffect(() => {
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const hasLowMemory = 'deviceMemory' in navigator ? (navigator as any).deviceMemory < 4 : false;
+    const hasFewCores = navigator.hardwareConcurrency < 4;
+    setIsLowEnd(isMobile || hasLowMemory || hasFewCores);
+  }, []);
+
+  const handleManualUnmute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = false;
+      videoRef.current.play();
+      setIsPlaying(true);
+    }
+  };
+
+  useLayoutEffect(() => {
     const ctx = gsap.context(() => {
-      // 1. Hero Zoom & Disappear
+
+      // ─── SECTION 1: HERO ───────────────────────────────────────────────
       const heroTl = gsap.timeline({
         scrollTrigger: {
-          trigger: '.hero-container',
+          trigger: '#bee-section-1',
           start: 'top top',
-          end: 'bottom top',
-          scrub: 1,
+          end: '+=220%',
           pin: true,
+          scrub: 1.6,
+          anticipatePin: 1,
         }
       });
 
-      heroTl.to('.hero-bg-layer', { scale: 1.5, opacity: 0.2, ease: 'none' }, 0)
-            .to('.hero-text-block', { yPercent: -50, opacity: 0, ease: 'none' }, 0);
-
-      // 2. The Pinned Image Stacking (Apple-style narrative)
-      const stackCards = gsap.utils.toArray<HTMLElement>('.stack-card');
-      stackCards.forEach((card, i) => {
-        ScrollTrigger.create({
-          trigger: card,
-          start: 'top top',
-          pin: true,
-          pinSpacing: false,
-          snap: 1,
-          end: () => `+=${window.innerHeight}`,
-        });
+      gsap.set([metaRef.current, titleRef.current, descRef.current], {
+        opacity: 0,
+        visibility: 'hidden',
       });
 
-      // 3. Staggered Horizontal Scrub for Products Title
-      gsap.to('.products-marquee', {
-        xPercent: -50,
-        ease: 'none',
+      heroTl
+        .to('.hero-bg-zoom', { scale: 1.4, ease: 'none' }, 0)
+        .fromTo(metaRef.current,
+          { y: -40, opacity: 0, filter: 'blur(12px)', visibility: 'hidden' },
+          { y: 0, opacity: 1, filter: 'blur(0px)', visibility: 'visible', duration: 1 }, 0.15)
+        .fromTo(titleRef.current,
+          { rotateX: 80, z: -300, opacity: 0, visibility: 'hidden' },
+          { rotateX: 0, z: 0, opacity: 1, visibility: 'visible', duration: 1.8, ease: 'power4.out' }, '>-=0.6')
+        .fromTo(descRef.current,
+          { x: -120, opacity: 0, filter: 'blur(10px)', visibility: 'hidden' },
+          { x: 0, opacity: 1, filter: 'blur(0px)', visibility: 'visible', duration: 1.2 }, '>-=0.5');
+
+      // ─── SECTION 2: PORTAL ─────────────────────────────────────────────
+      if (!isLowEnd) {
+        const glassTl = gsap.timeline({ repeat: -1, yoyo: true, ease: 'sine.inOut' });
+        glassTl
+          .to(glassInnerRef.current, { rotationY: 1.2, rotationX: 0.6, scale: 1.012, duration: 4, boxShadow: '0 0 40px rgba(212,175,55,0.5), 0 0 80px rgba(212,175,55,0.25)' })
+          .to(glassInnerRef.current, { rotationY: -1.2, rotationX: -0.6, scale: 0.988, duration: 4, boxShadow: '0 0 60px rgba(212,175,55,0.7), 0 0 120px rgba(212,175,55,0.35)' }, '+=0.1');
+
+        gsap.to(glowRef.current, { scale: 1.12, opacity: 0.55, duration: 3, repeat: -1, yoyo: true, ease: 'sine.inOut' });
+      }
+
+      const portalTl = gsap.timeline({
         scrollTrigger: {
-          trigger: '.products-section',
+          trigger: '#bee-section-2',
+          start: 'top top',
+          end: '+=600%',
+          pin: true,
+          scrub: isLowEnd ? 1 : 1.5,
+          onUpdate: (self) => {
+            const p = self.progress;
+            if (p > 0.45 && p < 0.85) {
+              setIsFullyEntered(true);
+              if (videoRef.current?.paused) videoRef.current.play().catch(() => {});
+            } else {
+              setIsFullyEntered(false);
+              setIsPlaying(false);
+              videoRef.current?.pause();
+            }
+          }
+        }
+      });
+
+      portalTl
+        .set(portalRef.current, { willChange: 'transform' })
+        .to(portalRef.current, { scale: 45, opacity: 0, duration: 2, ease: 'power2.inOut' }, 0)
+        .fromTo('.bee-video-layer',
+          { scale: 1.25, filter: 'blur(24px)', opacity: 0 },
+          { scale: 1, filter: 'blur(0px)', opacity: 1, duration: 1.5 }, 0.5)
+        .fromTo('.bee-hud',
+          { opacity: 0, y: 30 },
+          { opacity: 1, y: 0, stagger: 0.12, duration: 0.5 }, 1.5)
+        .to({}, { duration: 1 })
+        .to('.bee-hud', { opacity: 0, y: -30, duration: 0.5 }, '>')
+        .to('.bee-video-layer', { scale: 1.25, filter: 'blur(24px)', opacity: 0, duration: 1 }, '>')
+        .to(portalRef.current, { scale: 1, opacity: 1, duration: 2, ease: 'power2.inOut' }, '<0.5');
+
+      // ─── SECTION 3.1: MORPH HERO ───────────────────────────────────────
+      const morphTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: '#bee-section-3 .hero-morph',
+          start: 'top top',
+          end: '+=180%',
+          pin: true,
+          scrub: 1.5,
+        }
+      });
+
+      morphTl
+        .from('.liquid-char', {
+          y: (i: number) => i % 2 === 0 ? -600 : 600,
+          z: () => Math.random() * -2000,
+          rotateY: () => Math.random() * 360,
+          opacity: 0,
+          stagger: 0.08,
+          ease: 'expo.inOut',
+        })
+        .to('.liquid-char', {
+          color: '#D4AF37',
+          textShadow: '0 0 40px rgba(212,175,55,0.5)',
+          duration: 1
+        }, 0.4)
+        .to('.background-mesh', { scale: 1.2, opacity: 0.05, rotate: 4, duration: 2 }, 0);
+
+      // ─── SECTION 3.2: GLASS PARALLAX ───────────────────────────────────
+      gsap.to('.glass-pane', {
+        y: -280,
+        x: (i: number) => i % 2 === 0 ? 40 : -40,
+        rotateZ: (i: number) => i % 2 === 0 ? 4 : -4,
+        scrollTrigger: {
+          trigger: '#bee-section-3 .glass-section',
           start: 'top bottom',
           end: 'bottom top',
-          scrub: 1
+          scrub: 2,
         }
       });
 
-      // 4. Products entrance grid
-      gsap.from('.product-pro-card', {
-        y: 150,
-        opacity: 0,
-        rotationX: -15,
-        stagger: 0.1,
-        duration: 1.2,
-        ease: 'power3.out',
+      // ─── SECTION 3.3: CINEMATIC AGENDA ─────────────────────────────────
+      const agendaTl = gsap.timeline({
         scrollTrigger: {
-          trigger: '.products-grid',
-          start: 'top 80%',
+          trigger: '#bee-section-3 .agenda-wrapper',
+          start: 'top top',
+          end: '+=600%',
+          pin: true,
+          scrub: 1,
+        }
+      });
+
+      agendaTl.to('.flow-line', { height: '100%', ease: 'none' }, 0);
+
+      gsap.utils.toArray<HTMLElement>('.agenda-item').forEach((item, i) => {
+        agendaTl
+          .fromTo(item,
+            { y: 600, opacity: 0, rotateX: -90, z: -1000, pointerEvents: 'none' },
+            { y: 0, opacity: 1, rotateX: 0, z: 0, pointerEvents: 'auto', duration: 1, ease: 'power4.out' },
+            i * 0.8)
+          .to(item,
+            { y: -600, opacity: 0, rotateX: 90, z: -500, pointerEvents: 'none', duration: 1, ease: 'power4.in' },
+            (i + 1) * 0.8);
+      });
+
+      // ─── SECTION 3.4: CTA REVEAL ───────────────────────────────────────
+      gsap.from('.welded-btn-wrap', {
+        scale: 0.5,
+        opacity: 0,
+        y: 100,
+        rotateX: -45,
+        scrollTrigger: {
+          trigger: '#bee-section-3 .cta-section',
+          start: 'top 85%',
+          end: 'top 50%',
+          scrub: 1,
         }
       });
 
     }, containerRef);
 
-    return () => ctx.revert();
-  }, []);
+    return () => {
+      ctx.revert();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+    };
+  }, [isLowEnd]);
 
   return (
-    <div ref={containerRef} className="bg-[#050505] text-white font-sans overflow-x-hidden selection:bg-gold-primary selection:text-obsidian">
+    <div ref={containerRef} className="relative bg-black text-white font-sans overflow-x-hidden">
       <Navbar />
 
-      {/* --- HERO SECTION --- */}
-      <section className="hero-container relative h-screen w-full flex flex-col items-center justify-center overflow-hidden z-10">
-        <div className="hero-bg-layer absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1544383187-d4fa973ff669?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-40">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#050505]/0 via-[#050505]/20 to-[#050505] mix-blend-multiply"></div>
-        </div>
-        
-        <div className="hero-text-block relative z-10 text-center px-4 md:px-0">
-          <div className="overflow-hidden mb-6">
-            <p className="text-gold-primary uppercase tracking-[0.5em] text-xs font-black backdrop-blur-sm bg-obsidian/30 inline-block px-6 py-2 rounded-full border border-gold-primary/20">The Genesis</p>
+      {/* ══════════════════════════════════════════
+          SECTION 1 — CINEMATIC HERO
+      ══════════════════════════════════════════ */}
+      <section
+        id="bee-section-1"
+        className="relative w-screen h-screen overflow-hidden bg-black"
+      >
+        {/* Background image that zooms on scroll */}
+        <div
+          className="hero-bg-zoom absolute inset-0 z-0 bg-[url('https://images.unsplash.com/photo-1473973266408-ed4e27abdd47?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-50"
+          style={{ transformOrigin: 'center center' }}
+        />
+        <div className="absolute inset-0 z-0 bg-gradient-to-l from-black via-black/40 to-transparent" />
+        <div className="absolute inset-0 z-0 bg-gradient-to-t from-black via-transparent to-black/60" />
+
+        {/* Content */}
+        <div className="absolute inset-0 z-20 flex items-center justify-end px-8 md:px-24 lg:px-36">
+          <div className="flex flex-col items-end text-right max-w-4xl gap-6" style={{ perspective: '1000px' }}>
+
+            {/* Meta badge */}
+            <div
+              ref={metaRef}
+              className="flex items-center gap-3 px-6 py-2 rounded-full border border-yellow-600/30 bg-black/50 backdrop-blur-md"
+            >
+              <span className="w-2 h-2 bg-yellow-500 rounded-full animate-pulse" />
+              <span className="text-yellow-500 text-[10px] font-black tracking-[0.4em] uppercase">Pure Honey · VRK Farms</span>
+            </div>
+
+            {/* Main title */}
+            <h1
+              ref={titleRef}
+              className="font-black text-5xl md:text-8xl lg:text-9xl bg-gradient-to-br from-yellow-200 via-yellow-400 to-yellow-700 bg-clip-text text-transparent tracking-tighter leading-none italic drop-shadow-2xl"
+              style={{ willChange: 'transform' }}
+            >
+              BEE FARMING<br />
+              <span className="text-white/90 not-italic text-4xl md:text-5xl tracking-widest font-light">BY NATURE</span>
+            </h1>
+
+            {/* Description */}
+            <p
+              ref={descRef}
+              className="text-lg md:text-2xl text-white/75 leading-relaxed font-medium max-w-xl drop-shadow-lg"
+            >
+              From <strong className="text-yellow-300">wild habitats</strong> to glass jars —{' '}
+              <em>zero heat, zero compromise</em>. Pure raw honey extracted
+              the way nature intended.
+            </p>
           </div>
-          <h1 className="font-display text-8xl md:text-[12rem] leading-none font-black text-transparent bg-clip-text bg-gradient-to-b from-white to-white/30 tracking-tighter drop-shadow-2xl">
-            VRK FARMS
+        </div>
+
+        {/* Scroll indicator */}
+        <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-30 flex flex-col items-center gap-3">
+          <span className="text-[10px] tracking-[1em] text-yellow-500 font-black animate-pulse uppercase whitespace-nowrap">
+            Keep Scrolling
+          </span>
+          <div className="w-px h-16 bg-gradient-to-b from-yellow-500 to-transparent" />
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          SECTION 2 — IMMERSIVE GOLDEN PORTAL
+      ══════════════════════════════════════════ */}
+      <section id="bee-section-2" className="relative w-full h-screen bg-black overflow-hidden">
+
+        {/* Video Layer */}
+        <div
+          className="bee-video-layer absolute inset-0 z-10 overflow-hidden"
+          style={{ opacity: isPlaying ? 1 : 0, transition: 'opacity 0.6s ease' }}
+        >
+          <video
+            ref={videoRef}
+            className="w-full h-full object-cover"
+            src="https://www.w3schools.com/html/mov_bbb.mp4"
+            muted loop playsInline
+            preload={isLowEnd ? 'metadata' : 'auto'}
+          />
+        </div>
+
+        {/* HUD Elements */}
+        <div
+          className="absolute inset-0 z-30 flex flex-col justify-between p-10 pointer-events-none"
+          style={{
+            opacity: isFullyEntered && !isPlaying ? 1 : 0,
+            transform: isFullyEntered && !isPlaying ? 'scale(1)' : 'scale(0.95)',
+            transition: 'all 0.6s ease',
+          }}
+        >
+          <div className="flex justify-between items-start">
+            <div className="bee-hud">
+              <div className="backdrop-blur-2xl border border-yellow-600/30 p-5 rounded-[2.5rem] bg-black/40">
+                <p className="text-yellow-500 font-mono text-[10px] tracking-[0.4em] uppercase">VRK Farms · Raw Collection</p>
+              </div>
+            </div>
+            <div className="bee-hud text-yellow-600/10 font-black text-[12vw] tracking-tighter italic select-none">HONEY</div>
+          </div>
+
+          <div
+            className="flex flex-col items-center gap-8 pointer-events-auto bee-hud"
+            style={{ opacity: isPlaying ? 0 : 1, transition: 'opacity 0.4s ease' }}
+          >
+            <button
+              onClick={handleManualUnmute}
+              className="group relative flex flex-col items-center gap-4 transition-transform hover:scale-110 active:scale-95"
+            >
+              <div className="w-24 h-24 rounded-full border border-yellow-500/40 flex items-center justify-center backdrop-blur-2xl bg-yellow-500/10 transition-all duration-500 group-hover:bg-yellow-400 group-hover:border-yellow-400">
+                <Play className="text-yellow-400 group-hover:text-black fill-current ml-1" size={32} />
+              </div>
+              <span className="text-yellow-500/60 font-black tracking-[0.6em] text-[10px] uppercase">
+                Watch The Farm Story
+              </span>
+            </button>
+          </div>
+
+          <div className="bee-hud w-full flex justify-center pb-4" style={{ opacity: isPlaying ? 0 : 1, transition: 'opacity 0.4s ease' }}>
+            <ChevronDown className="text-yellow-500/40 animate-bounce" size={32} />
+          </div>
+        </div>
+
+        {/* The Golden Portal Lens */}
+        <div
+          ref={portalRef}
+          className="absolute inset-0 z-40 pointer-events-none flex items-center justify-center"
+          style={{
+            perspective: isLowEnd ? 'none' : '1200px',
+            opacity: isPlaying ? 0 : 1,
+            transform: isPlaying ? 'scale(1.5)' : 'scale(1)',
+            transition: 'all 0.6s ease',
+          }}
+        >
+          {/* Glow */}
+          <div
+            ref={glowRef}
+            className="absolute"
+            style={{
+              width: '90vw', height: '52vw',
+              maxWidth: '1000px', maxHeight: '570px',
+              borderRadius: '260px 260px 200px 200px',
+              filter: 'blur(24px)',
+              background: 'radial-gradient(circle at 35% 30%, rgba(212,175,55,0.95) 0%, rgba(212,175,55,0.6) 25%, rgba(160,130,20,0.3) 55%, rgba(80,60,10,0.1) 80%, transparent 95%)',
+              mixBlendMode: 'overlay',
+              opacity: isPlaying ? 0 : 1,
+              transform: isPlaying ? 'scale(2)' : isFullyEntered ? 'scale(1.15)' : 'scale(1)',
+              transition: 'all 0.6s ease',
+            }}
+          />
+
+          {/* Glass Inner */}
+          <div
+            ref={glassInnerRef}
+            className="relative flex items-center justify-center overflow-hidden"
+            style={{
+              width: '85vw', height: '48vw',
+              maxWidth: '950px', maxHeight: '520px',
+              borderRadius: '240px 240px 180px 180px',
+              border: '2px solid rgba(212,175,55,0.5)',
+              background: 'linear-gradient(145deg, rgba(212,175,55,0.18) 0%, rgba(255,255,255,0.35) 45%, rgba(255,255,255,0.25) 65%, rgba(212,175,55,0.15) 100%)',
+              backdropFilter: `blur(${isLowEnd ? '8px' : '16px'})`,
+              boxShadow: '0 25px 50px -12px rgba(0,0,0,0.6), 0 0 50px rgba(212,175,55,0.4)',
+              transform: isPlaying ? 'scale(0)' : isFullyEntered ? 'perspective(1000px) rotateX(14deg) rotateY(8deg) rotateZ(3deg) scale(0.85) translateY(-20px)' : 'none',
+              transformStyle: 'preserve-3d',
+              transition: 'all 0.6s ease',
+              opacity: isPlaying ? 0 : 1,
+            }}
+          >
+            {/* Reflections */}
+            {!isLowEnd && (
+              <>
+                <div className="absolute inset-0 opacity-60 animate-pulse" style={{ background: 'linear-gradient(to top right, rgba(255,255,255,0.6), transparent)', animationDuration: '4s' }} />
+                <div className="absolute inset-0 opacity-40" style={{ background: 'linear-gradient(to bottom left, rgba(212,175,55,0.3), transparent)' }} />
+              </>
+            )}
+
+            {/* Particles */}
+            {!isLowEnd && (
+              <div className="absolute inset-0 overflow-hidden">
+                {[...Array(10)].map((_, i) => (
+                  <div
+                    key={i}
+                    className="absolute w-1 h-1 bg-yellow-300 rounded-full animate-ping"
+                    style={{
+                      left: `${10 + (i * 8) % 80}%`,
+                      top: `${15 + (i * 13) % 70}%`,
+                      animationDuration: `${3 + (i * 0.7)}s`,
+                      animationDelay: `${i * 0.3}s`,
+                      opacity: 0.25,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+
+            {/* Content */}
+            <div className="text-center px-10 relative z-10" style={{ opacity: isPlaying ? 0 : 1, transition: 'all 0.6s ease' }}>
+              <div className="mb-8 inline-block px-6 py-2 rounded-full border border-yellow-600/50 bg-black/80 backdrop-blur-sm">
+                <span className="text-[10px] font-black text-yellow-400 tracking-[0.5em] uppercase italic">
+                  VRK Farms · Raw Collection
+                </span>
+              </div>
+              <h2 className="text-black text-[8vw] font-black italic tracking-tighter leading-[0.85] mb-8">
+                PURE<br />HONEY
+              </h2>
+              <p className="text-black/60 font-mono text-[9px] tracking-[1em] uppercase">
+                Scroll to Explore
+              </p>
+            </div>
+
+            {/* Border ring */}
+            <div className="absolute inset-0 pointer-events-none" style={{ borderRadius: '240px 240px 180px 180px', border: '3px solid rgba(255,255,255,0.2)' }} />
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════════
+          SECTION 3 — MERCURIAL ARCHITECT
+      ══════════════════════════════════════════ */}
+      <section id="bee-section-3" className="bg-[#fafafa] text-zinc-900 font-sans overflow-x-hidden selection:bg-yellow-400">
+
+        {/* 3.1 — Morph Hero */}
+        <div className="hero-morph h-screen flex items-center justify-center bg-black overflow-hidden relative">
+          <div className="background-mesh absolute inset-0 opacity-0 pointer-events-none bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')]" />
+
+          <h1 className="flex flex-wrap justify-center text-[11vw] md:text-[13vw] font-black uppercase tracking-tighter leading-none italic z-20 px-4">
+            {'RAW HONEY'.split('').map((c, i) => (
+              <span key={i} className="liquid-char inline-block" style={{ transformStyle: 'preserve-3d', color: c === ' ' ? 'transparent' : 'white' }}>
+                {c === ' ' ? '\u00A0' : c}
+              </span>
+            ))}
           </h1>
-          <p className="text-text-muted font-mono uppercase tracking-[0.4em] mt-8 text-sm md:text-xl drop-shadow-lg">Absolute Purity • Engineered by Nature</p>
-        </div>
-        
-        <div className="absolute bottom-16 left-1/2 -translate-x-1/2 text-center animate-pulse">
-           <div className="w-[1px] h-24 bg-gradient-to-b from-gold-primary to-transparent mx-auto"></div>
-        </div>
-      </section>
 
-      {/* --- STACKING NARRATIVE PROCESS --- */}
-      <section className="process-stack-section relative z-20 bg-[#050505]">
-        {[
-          { num: '01', title: 'Untouched Habitats', desc: 'Our bees roam freely across acres of wildly grown, pesticide-free flora. The nectar collected is robust, raw, and pure.', img: 'https://images.unsplash.com/photo-1473973266408-ed4e27abdd47?q=80&w=2000&auto=format&fit=crop' },
-          { num: '02', title: 'The Comb Matrix', desc: 'Inside the hives, millions of bees orchestrate a complex matrix of wax and nectar, condensing it into thick, medicinal honey.', img: 'https://images.unsplash.com/photo-1587049352847-8d4e894155db?q=80&w=2000&auto=format&fit=crop' },
-          { num: '03', title: 'Cold Extraction', desc: 'Combs are uncapped by hand. We use centrifugal force instead of heat to preserve the delicate enzymes and vitamins.', img: 'https://images.unsplash.com/photo-1590089851571-08173ea51fba?q=80&w=2000&auto=format&fit=crop' },
-          { num: '04', title: 'Raw Bottling', desc: 'Unfiltered, unpasteurized, and undisturbed. Poured raw into glass, keeping the majestic integrity of the bee process intact.', img: 'https://images.unsplash.com/photo-1629851608404-539097e93da4?q=80&w=2000&auto=format&fit=crop' }
-        ].map((step, i) => (
-          <div key={i} className="stack-card h-screen w-full relative flex items-center justify-center p-4 md:p-12 overflow-hidden shadow-[0_-20px_50px_rgba(0,0,0,0.8)] origin-top">
-            
-            <div className="absolute inset-0 z-0">
-              <img src={step.img} alt={step.title} className="w-full h-full object-cover opacity-30" />
-              <div className={`absolute inset-0 bg-gradient-to-br from-[#050505] ${i % 2 === 0 ? 'via-[#050505]/80' : 'via-[#050505]/95'} to-transparent`}></div>
-            </div>
-
-            <div className={`relative z-10 max-w-7xl w-full flex flex-col ${i % 2 === 0 ? 'md:flex-row' : 'md:flex-row-reverse'} items-center gap-12 md:gap-32`}>
-              <div className="flex-1 space-y-8 px-4">
-                 <span className="text-gold-primary font-mono text-xl border border-gold-primary/30 px-4 py-2 rounded-full backdrop-blur-md bg-gold-primary/5">PHASE {step.num}</span>
-                 <h2 className="font-display text-5xl md:text-7xl font-black text-white leading-[1.1]">{step.title}</h2>
-                 <p className="text-text-secondary text-lg md:text-2xl leading-relaxed max-w-xl font-light">
-                   {step.desc}
-                 </p>
-              </div>
-              <div className="flex-1 w-full h-[40vh] md:h-[60vh] relative rounded-[3rem] overflow-hidden border border-white/10 shadow-2xl">
-                 <img src={step.img} className="w-full h-full object-cover mix-blend-luminosity scale-110" alt={step.title} />
-                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent mix-blend-overlay"></div>
-              </div>
-            </div>
+          <div className="absolute bottom-10 flex flex-col items-center gap-4">
+            <div className="w-px h-20 bg-gradient-to-b from-zinc-700 to-yellow-500" />
+            <span className="text-[10px] tracking-[1.5em] text-yellow-500 uppercase font-bold animate-pulse">Keep Scrolling</span>
           </div>
-        ))}
-      </section>
+        </div>
 
-      {/* --- MASSIVE MARQUEE & PRODUCTS GRID --- */}
-      <section className="products-section relative z-30 bg-[#050505] pt-32 pb-48 overflow-hidden">
-        
-        {/* Absolute glow */}
-        <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gold-primary/10 rounded-full blur-[200px] pointer-events-none"></div>
+        {/* 3.2 — Glass Refraction Grid */}
+        <div className="glass-section min-h-screen bg-[#f4f4f4] flex items-center justify-center relative py-20 px-6 md:px-10">
+          <div className="absolute inset-0 flex items-center justify-center opacity-[0.07] select-none overflow-hidden pointer-events-none">
+            <h2 className="text-[40vw] font-black text-black">FARM</h2>
+          </div>
 
-        <div className="whitespace-nowrap overflow-hidden mb-32 mix-blend-screen opacity-10">
-          <h2 className="products-marquee font-display text-[15rem] font-black text-white px-8 uppercase">
-            NATURAL PRODUCE • NATURAL PRODUCE • NATURAL PRODUCE • 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10 z-10 w-full max-w-7xl">
+            {[
+              {
+                session: 'Morning Harvest',
+                products: ['Pure Raw Honey', 'Honey Comb Cake'],
+                tagline: 'Extracted before dawn — rich, thick & alive.',
+              },
+              {
+                session: 'Afternoon Farm',
+                products: ['Amla Murabba', 'Turmeric · Coconut'],
+                tagline: 'From pesticide-free soil, untouched by chemicals.',
+              }
+            ].map((item, i) => (
+              <div
+                key={i}
+                className="glass-pane relative w-full min-h-[500px] bg-white/40 backdrop-blur-xl border border-white shadow-2xl rounded-[40px] p-8 md:p-12 flex flex-col justify-between overflow-hidden group"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-white/60 via-transparent to-yellow-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-1000" />
+                <div className="relative">
+                  <span className="text-yellow-600 font-black text-sm tracking-widest uppercase">{item.session}</span>
+                  <div className="h-12" />
+                  {item.products.map((p, j) => (
+                    <h3 key={j} className="text-5xl md:text-6xl font-black mt-4 tracking-tighter leading-none uppercase">{p}</h3>
+                  ))}
+                  <p className="mt-6 text-zinc-500 text-sm tracking-wide leading-relaxed">{item.tagline}</p>
+                </div>
+                <div className="relative flex items-center gap-4 mt-8">
+                  <div className="w-12 h-12 bg-zinc-900 rounded-full flex items-center justify-center">
+                    <div className="w-2 h-2 bg-yellow-500 rounded-full animate-ping" />
+                  </div>
+                  <p className="text-xs uppercase font-bold tracking-widest text-zinc-400">VRK Certified Pure</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3.3 — Cinematic Process Agenda */}
+        <div className="agenda-wrapper relative h-screen w-full flex items-center justify-center overflow-hidden bg-white">
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none select-none">
+            <h2 className="text-[20vw] font-black text-zinc-50">PROCESS</h2>
+          </div>
+
+          {/* Vertical flow line */}
+          <div className="absolute left-1/2 -translate-x-1/2 top-0 w-[2px] h-0 bg-zinc-100 z-0">
+            <div className="flow-line absolute top-0 left-0 w-full h-0 bg-yellow-500 shadow-[0_0_20px_#D4AF37]" />
+          </div>
+
+          <div className="relative z-10 w-full max-w-5xl h-[550px] md:h-[650px] px-6" style={{ perspective: '2000px' }}>
+            {processSteps.map((item, i) => (
+              <div
+                key={i}
+                className="agenda-item absolute inset-0 flex flex-col items-center justify-center text-center p-10"
+                style={{ transformStyle: 'preserve-3d' }}
+              >
+                <span className="text-yellow-500 font-black text-2xl tracking-[0.3em] mb-4">{item.time}</span>
+                <h3 className="agenda-title text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-extrabold uppercase text-center leading-[0.85] mb-6">
+                  {item.title}
+                </h3>
+                <div className="flex items-center gap-6">
+                  <div className="h-px w-12 bg-yellow-500" />
+                  <p className="text-sm uppercase tracking-[0.5em] font-bold text-zinc-400">{item.sub}</p>
+                  <div className="h-px w-12 bg-yellow-500" />
+                </div>
+                <div className="absolute bottom-0 right-0 flex flex-col items-end opacity-30">
+                  <span className="text-[10px] font-black uppercase tracking-widest">{item.note}</span>
+                  <span className="text-[10px] font-black text-yellow-600">VRK FARMS</span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3.4 — Welded CTA */}
+        <div className="cta-section h-screen bg-black flex flex-col items-center justify-center relative" style={{ perspective: '2000px' }}>
+          <h2 className="text-[10vw] font-black uppercase tracking-tighter mb-16 text-center leading-none text-white">
+            Taste the<br />
+            <span className="text-transparent" style={{ WebkitTextStroke: '2px #D4AF37' }}>Difference</span>
           </h2>
-        </div>
 
-        <div className="max-w-7xl mx-auto px-4 relative z-10 products-grid">
-           
-           <div className="flex flex-col md:flex-row justify-between items-end mb-20 gap-8">
-             <h2 className="font-display text-6xl md:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-gold-primary to-gold-light uppercase tracking-tighter">
-               The Farm<br/>Collection
-             </h2>
-             <p className="text-text-secondary max-w-md text-lg border-l-2 border-gold-primary/30 pl-6 py-2">
-               A meticulously cultivated selection of raw materials sourced directly from our farm borders, preserving the authenticity of native breeds and plants.
-             </p>
-           </div>
+          <div className="welded-btn-wrap relative group z-30" style={{ transformStyle: 'preserve-3d' }}>
+            <div className="absolute -top-4 -left-4 w-4 h-4 bg-yellow-400 rounded-full group-hover:animate-ping z-0" />
+            <div className="absolute -bottom-4 -right-4 w-4 h-4 bg-yellow-400 rounded-full group-hover:animate-ping z-0" style={{ animationDelay: '75ms' }} />
 
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-             {products.map((p, i) => (
-               <div key={i} className="product-pro-card group relative h-[450px] rounded-[2rem] overflow-hidden bg-surface-2 border border-white/5 hover:border-gold-primary/50 transition-all duration-700 cursor-pointer shadow-lg hover:shadow-gold-primary/20">
-                 {/* Image BG */}
-                 <div className="absolute inset-0 w-full h-full pb-32">
-                   <img src={p.img} alt={p.name} className="w-full h-full object-cover filter saturate-50 group-hover:saturate-100 group-hover:scale-110 transition-all duration-[1s]" />
-                   <div className="absolute inset-0 bg-gradient-to-t from-[#0F0F12] via-[#0F0F12]/80 to-transparent"></div>
-                 </div>
-                 
-                 {/* Content overlay */}
-                 <div className="absolute bottom-0 left-0 right-0 p-8 flex flex-col justify-end min-h-[50%] z-10">
-                   <div className="flex gap-2 mb-4 opacity-0 group-hover:opacity-100 translate-y-4 group-hover:translate-y-0 transition-all duration-500 delay-100">
-                     <span className="text-[9px] uppercase tracking-widest text-obsidian bg-gold-primary px-3 py-1 rounded-full font-black">VRK Certified</span>
-                   </div>
-                   <h3 className="font-display text-2xl text-white mb-1 group-hover:text-gold-primary transition-colors">{p.name}</h3>
-                   <p className="text-xs text-gold-primary/50 uppercase tracking-[0.2em] mb-4 font-bold">{p.nameTm}</p>
-                   <p className="text-sm text-text-secondary line-clamp-2 leading-relaxed opacity-0 group-hover:opacity-100 -translate-y-4 group-hover:translate-y-0 transition-all duration-500">{p.desc}</p>
-                 </div>
-               </div>
-             ))}
-           </div>
+            <Link
+              to="/shop"
+              className="relative inline-block px-24 py-12 bg-yellow-500 text-black shadow-[0_40px_80px_rgba(212,175,55,0.3)] hover:shadow-[0_20px_40px_rgba(212,175,55,0.7)] transition-all duration-700 overflow-hidden rounded-2xl group active:scale-95"
+            >
+              <span className="relative z-10 text-2xl md:text-3xl font-black uppercase tracking-[0.3em] group-hover:text-black transition-colors">
+                SHOP NOW
+              </span>
+              <div className="absolute inset-0 bg-gradient-to-t from-yellow-700/60 via-transparent to-transparent translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+            </Link>
+          </div>
+
+          <div className="mt-24 flex flex-col items-center">
+            <span className="text-[10px] tracking-[1em] text-zinc-600 uppercase font-bold italic">VRK Farms · Raw Collection · 2026</span>
+          </div>
         </div>
       </section>
 
-      {/* --- FOOTER / CONCLUSION --- */}
-      <footer className="relative h-[50vh] flex flex-col items-center justify-center border-t border-white/10 bg-[#020202] overflow-hidden text-center">
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1544383187-d4fa973ff669?q=80&w=2670&auto=format&fit=crop')] bg-cover bg-center opacity-10 mix-blend-luminosity"></div>
-        <div className="relative z-10 max-w-3xl px-4">
-           <h2 className="font-display text-4xl md:text-6xl text-gold-primary mb-8 tracking-wider">VRK FARMS</h2>
-           <p className="text-text-muted tracking-[0.3em] uppercase text-sm md:text-base border-y border-white/10 py-6 mx-auto w-max px-12">Return to Nature • Return to Life</p>
-        </div>
-      </footer>
-
+      <style>{`
+        .agenda-title {
+          letter-spacing: 0.08em;
+          -webkit-text-stroke: 1px #000;
+          text-shadow:
+            0 4px 10px rgba(0,0,0,0.15),
+            0 10px 30px rgba(0,0,0,0.1),
+            0 0 40px rgba(212,175,55,0.2);
+        }
+        .liquid-char { transform-style: preserve-3d; }
+        .welded-btn-wrap { transform-style: preserve-3d; }
+        @keyframes ping {
+          75%, 100% { transform: scale(2); opacity: 0; }
+        }
+        .animate-ping { animation: ping 1s cubic-bezier(0, 0, 0.2, 1) infinite; }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.7; }
+          50% { opacity: 0.35; }
+        }
+        .animate-pulse { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        @media (prefers-reduced-motion: reduce) {
+          .animate-bounce, .animate-ping, .animate-pulse { animation: none; }
+        }
+      `}</style>
     </div>
   );
 }

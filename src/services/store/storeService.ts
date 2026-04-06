@@ -42,6 +42,77 @@ export const storeService = {
     });
 
     if (updateError) throw updateError;
+
+    // 3. Fire email notifications (non-blocking — don't throw on email failure)
+    try {
+      // Fetch updated product info
+      const { data: productData } = await supabase
+        .from('store_products')
+        .select('name, stock_quantity')
+        .eq('id', productId)
+        .single();
+
+      // Fetch seller's display name
+      const { data: sellerProfile } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      // Fetch all admin profile IDs
+      const { data: adminProfiles } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'admin');
+
+      const adminIds = (adminProfiles || []).map((p: any) => p.id);
+
+      // Fallback: include current user as recipient if no admins found
+      if (adminIds.length === 0) {
+        adminIds.push(user.id);
+      }
+
+      const productName = productData?.name || 'Unknown Product';
+      const remainingStock = productData?.stock_quantity ?? 0;
+      const sellerName = sellerProfile?.full_name || user.email || 'Storekeeper';
+      const saleTime = new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' });
+      const totalValue = quantity * priceAtSale;
+
+      // Fire sale notification — edge function resolves emails from adminIds
+      supabase.functions.invoke('brevo-email', {
+        body: {
+          template: 'store_sale_notification',
+          payload: {
+            adminIds,
+            productName,
+            quantity,
+            priceAtSale,
+            totalValue,
+            remainingStock,
+            sellerName,
+            saleTime,
+          }
+        }
+      }).catch(console.error);
+
+      // Fire low stock alert separately if stock is critically low (≤ 10)
+      if (remainingStock <= 10) {
+        supabase.functions.invoke('brevo-email', {
+          body: {
+            template: 'store_low_stock_alert',
+            payload: {
+              adminIds,
+              productName,
+              remainingStock,
+              sellerName,
+            }
+          }
+        }).catch(console.error);
+      }
+    } catch (emailErr) {
+      // Email errors must never break the sale flow
+      console.error('Sale notification email failed (non-fatal):', emailErr);
+    }
   },
 
   async getSales(): Promise<any[]> {
