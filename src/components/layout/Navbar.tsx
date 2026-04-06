@@ -103,26 +103,27 @@ export default function Navbar() {
             {/* Profile/Auth */}
             {user ? (
               <div className="flex items-center gap-1 sm:gap-4">
-                <Link to="/orders" className="flex flex-col items-center group px-2" title="Orders">
+                {/* Orders, Store, Profile — hidden on mobile, shown on desktop */}
+                <Link to="/orders" className="hidden lg:flex flex-col items-center group px-2" title="Orders">
                   <Package size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
-                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1 ">Orders</span>
+                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1">Orders</span>
                 </Link>
-                <Link to="/store-mode" className="flex flex-col items-center group px-2" title="Store Mode">
+                <Link to="/store-mode" className="hidden lg:flex flex-col items-center group px-2" title="Store Mode">
                   <Package size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
-                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1 ">Store</span>
+                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1">Store</span>
                 </Link>
-                <Link to="/profile" className="flex flex-col items-center group px-2" title="Profile">
+                <Link to="/profile" className="hidden lg:flex flex-col items-center group px-2" title="Profile">
                   <User size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
-                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1 ">Profile</span>
+                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1">Profile</span>
                 </Link>
                 <button 
                   onClick={handleLogout} 
                   disabled={isLoggingOut}
-                  className="flex flex-col items-center group px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" 
+                  className="hidden lg:flex flex-col items-center group px-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed" 
                   title="Logout"
                 >
                   <LogOut size={20} className="text-text-muted group-hover:text-danger transition-colors" />
-                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1 hidden sm:block">
+                  <span className="text-[10px] uppercase font-bold text-text-muted mt-1">
                     {isLoggingOut ? '...' : 'Logout'}
                   </span>
                 </button>
@@ -140,7 +141,7 @@ export default function Navbar() {
       {/* Mobile Menu Overlay */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-obsidian/95 backdrop-blur-2xl border-b border-glass-border animate-in fade-in slide-in-from-top-4 duration-300">
-          <div className="px-4 pt-4 pb-8 space-y-4">
+          <div className="px-4 pt-4 pb-8 space-y-1">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -151,6 +152,34 @@ export default function Navbar() {
                 {link.name}
               </Link>
             ))}
+
+            {/* Authenticated user links — vertical on mobile */}
+            {user && (
+              <>
+                <Link
+                  to="/orders"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-4 text-lg font-display text-text-primary tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors"
+                >
+                  <Package size={20} className="text-gold-primary" /> Orders
+                </Link>
+                <Link
+                  to="/store-mode"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-4 text-lg font-display text-text-primary tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors"
+                >
+                  <Package size={20} className="text-gold-primary" /> Store
+                </Link>
+                <Link
+                  to="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-4 text-lg font-display text-text-primary tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors"
+                >
+                  <User size={20} className="text-gold-primary" /> Profile
+                </Link>
+              </>
+            )}
+
             {user && profile?.role === 'admin' && (
               <Link
                 to="/admin"
@@ -160,6 +189,18 @@ export default function Navbar() {
                 <ShieldAlert size={20} /> Admin Dashboard
               </Link>
             )}
+
+            {/* Logout */}
+            {user && (
+              <button
+                onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
+                disabled={isLoggingOut}
+                className="w-full flex items-center gap-3 px-4 py-4 text-lg font-display text-danger tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors disabled:opacity-50"
+              >
+                <LogOut size={20} /> {isLoggingOut ? 'Signing out...' : 'Logout'}
+              </button>
+            )}
+
             {!user && (
                <Link
                 to="/login"
