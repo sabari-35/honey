@@ -73,8 +73,8 @@ export default function Orders() {
     <div className="space-y-8 pb-20">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Order Ledger</h1>
-          <p className="text-text-muted text-xs uppercase tracking-widest mt-2">Real-time Transaction Monitoring</p>
+          <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Orders</h1>
+         
         </div>
       </div>
 
@@ -165,7 +165,7 @@ export default function Orders() {
                             <div className="space-y-6">
                               <div className="flex items-center gap-3 border-b border-glass-border pb-4">
                                 <Package size={18} className="text-gold-primary" />
-                                <h3 className="font-display text-lg text-text-primary uppercase tracking-widest">Transaction Intel</h3>
+                                <h3 className="font-display text-lg text-text-primary uppercase tracking-widest">Customer Details</h3>
                               </div>
                               <div className="space-y-4">
                                 <div className="flex items-start gap-3">
@@ -196,7 +196,7 @@ export default function Orders() {
                             <div className="space-y-6">
                               <div className="flex items-center gap-3 border-b border-glass-border pb-4">
                                 <ShoppingBag size={18} className="text-gold-primary" />
-                                <h3 className="font-display text-lg text-text-primary uppercase tracking-widest">Purchase Manifest</h3>
+                                <h3 className="font-display text-lg text-text-primary uppercase tracking-widest">Purchased Item</h3>
                               </div>
                               <div className="space-y-3">
                                 {order.order_items?.map((item: any) => (
@@ -214,7 +214,7 @@ export default function Orders() {
                                   </div>
                                 ))}
                                 <div className="flex justify-between pt-4 border-t border-glass-border text-text-primary">
-                                  <span className="text-xs uppercase font-bold tracking-widest text-text-muted">Total Value Locked</span>
+                                  <span className="text-xs uppercase font-bold tracking-widest text-text-muted">Total </span>
                                   <span className="font-display text-xl text-gold-primary">{formatCurrency(order.total_amount)}</span>
                                 </div>
                               </div>

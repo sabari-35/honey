@@ -39,7 +39,7 @@ export default function Navbar() {
   ];
 
   return (
-    <nav className="fixed w-full z-50 bg-obsidian/90 backdrop-blur-xl border-b border-glass-border">
+    <nav className="fixed w-full h-22 z-50 bg-obsidian/90 backdrop-blur-xl border-b border-glass-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-24">
           
@@ -105,7 +105,7 @@ export default function Navbar() {
               <div className="flex items-center gap-1 sm:gap-4">
                 {/* Orders, Store, Profile — hidden on mobile, shown on desktop */}
                 <Link to="/orders" className="hidden lg:flex flex-col items-center group px-2" title="Orders">
-                  <Package size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
+                  <Menu size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
                   <span className="text-[10px] uppercase font-bold text-text-muted mt-1">Orders</span>
                 </Link>
                 <Link to="/store-mode" className="hidden lg:flex flex-col items-center group px-2" title="Store Mode">

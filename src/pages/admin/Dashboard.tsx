@@ -66,7 +66,7 @@ export default function Dashboard() {
 
   return (
     <div className="space-y-10">
-      <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Vault Metrics</h1>
+      <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">ANALYTICS</h1>
       
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
         {stats.map((stat, i) => (

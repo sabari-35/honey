@@ -51,8 +51,8 @@ export default function AdminReviews() {
     <div className="space-y-8">
       <div className="flex justify-between items-end">
         <div>
-          <h1 className="font-display text-4xl text-text-primary uppercase tracking-widest">Feedback Ledger</h1>
-          <p className="text-text-muted text-sm mt-1 uppercase tracking-widest font-black">Moderation & Quality Control</p>
+          <h1 className="font-display text-4xl text-text-primary uppercase tracking-widest">Feedbacks</h1>
+          
         </div>
         <div className="neumorphic-panel px-6 py-3 rounded-2xl flex items-center gap-4">
           <div className="text-2xl font-display text-gold-primary">{reviews?.length || 0}</div>

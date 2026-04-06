@@ -35,7 +35,7 @@ export default function Users() {
   return (
     <div className="space-y-8">
       <div className="flex justify-between items-center">
-        <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Client Roster</h1>
+        <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Clients</h1>
       </div>
 
       <div className="neumorphic-panel p-2 rounded-3xl overflow-hidden">
@@ -46,10 +46,10 @@ export default function Users() {
             <table className="w-full text-left text-sm border-collapse">
               <thead className="text-text-secondary border-b border-glass-border">
                 <tr>
-                  <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs">Client Identity</th>
+                  <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs">Client's Identity</th>
                   <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs">Contact</th>
-                  <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-center">Clearance Status</th>
-                  <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-right">Joined</th>
+                  <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-center">Role</th>
+                  <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-right">Joined at</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-glass-border">
@@ -65,7 +65,7 @@ export default function Users() {
                     <td className="py-6 px-4 text-center">
                       {user.role === 'admin' ? (
                         <div className="inline-flex items-center gap-2 text-gold-primary border border-gold-primary/30 bg-gold-primary/5 px-3 py-1 rounded">
-                           <ShieldAlert size={14} /> Director
+                           <ShieldAlert size={14} /> Admin
                         </div>
                       ) : (
                         <Badge variant="neutral">Client</Badge>

@@ -112,7 +112,7 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
       <div className="neumorphic-panel w-full max-w-3xl max-h-[92vh] overflow-y-auto custom-scrollbar rounded-3xl">
         <div className="flex justify-between items-center p-8 border-b border-glass-border sticky top-0 bg-[#1A1A1E] z-10">
           <h2 className="text-3xl font-display text-gold-primary tracking-widest uppercase">
-            {product ? 'Modify Entry' : 'New Vault Entry'}
+            {product ? 'Update Entry' : 'New Entry'}
           </h2>
           <button onClick={onClose} className="w-10 h-10 rounded-full neumorphic-inset flex items-center justify-center text-text-muted hover:text-gold-primary transition-colors">
             <X size={20} />

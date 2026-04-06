@@ -34,8 +34,8 @@ export default function Products() {
     <>
       <div className="space-y-8 relative z-0">
         <div className="flex justify-between items-center">
-          <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Inventory Registry</h1>
-          <Button onClick={handleCreate} size="lg" className="rounded-2xl gap-3"><Plus size={20}/> New Batch Extraction</Button>
+          <h1 className="font-display text-4xl text-gold-primary tracking-widest uppercase">Inventory</h1>
+          <Button onClick={handleCreate} size="lg" className="rounded-2xl gap-3"><Plus size={20}/> Add New </Button>
         </div>
 
         <div className="neumorphic-panel p-2 rounded-3xl overflow-hidden">
@@ -47,9 +47,9 @@ export default function Products() {
                 <thead className="text-text-secondary border-b border-glass-border">
                   <tr>
                     <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs">Origin Product</th>
-                    <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-right">Value</th>
+                    <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-right">Price</th>
                     <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-center">Remaining Stock</th>
-                    <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-center">Protocol Status</th>
+                    <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-center">Status</th>
                     <th className="pb-6 px-4 font-normal uppercase tracking-wider text-xs text-right">Actions</th>
                   </tr>
                 </thead>

@@ -97,7 +97,7 @@ GENERAL RULES
 }
 
 const INITIAL_MESSAGES: Message[] = [
-  { id: '1', text: "✨ Hello! I'm your VRK AI Agent\nI'm directly connected to the vault securely 😊\nWhich extract are you looking for today?", sender: 'bot', timestamp: new Date(), isTyping: false }
+  { id: '1', text: "Hello! I'm your VRK AI Agent\nI'm directly connected to the vault securely 😊\nWhich extract are you looking for today?", sender: 'bot', timestamp: new Date(), isTyping: false }
 ];
 
 const SUGGESTIONS: string[] = ["Show me the products", "Order Tender Coconut", "Delivery options?", "Track my order"];
@@ -515,7 +515,7 @@ export default function CompactChatbot() {
               <h3 className="font-display font-medium text-text-primary tracking-widest uppercase text-sm">VRK Agent</h3>
               <div className="flex items-center gap-1.5">
                 <span className={`w-1.5 h-1.5 rounded-full ${isOnline ? 'bg-success animate-pulse' : 'bg-danger'}`}></span>
-                <span className="text-[10px] text-text-muted uppercase tracking-widest">{isOnline ? 'Online DB Sync' : 'Offline'}</span>
+                <span className="text-[10px] text-text-muted uppercase tracking-widest">{isOnline ? 'Online' : 'Offline'}</span>
               </div>
             </div>
           </div>

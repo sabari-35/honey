@@ -38,7 +38,7 @@ export default function CartDrawer() {
               <div className="flex items-center gap-3">
                 <ShoppingBag size={20} className="text-gold-primary" />
                 <h2 className="font-display text-xl text-gold-primary tracking-widest uppercase">
-                  Your Vault Cart
+                  Your Cart
                 </h2>
                 {computedTotalItems > 0 && (
                   <span className="bg-gold-primary text-obsidian text-xs font-bold w-6 h-6 rounded-full flex items-center justify-center">
@@ -63,11 +63,11 @@ export default function CartDrawer() {
                     <ShoppingBag size={32} className="text-text-muted opacity-50" />
                   </div>
                   <div>
-                    <p className="text-text-muted font-display text-lg tracking-widest mb-2">Vault is Empty</p>
+                    <p className="text-text-muted font-display text-lg tracking-widest mb-2">Cart is Empty</p>
                     <p className="text-text-muted text-sm">Add items from the shop to get started.</p>
                   </div>
                   <Button variant="ghost" onClick={() => { setCartOpen(false); navigate('/shop'); }}>
-                    Explore the Vault
+                    Explore Items
                   </Button>
                 </div>
               ) : (

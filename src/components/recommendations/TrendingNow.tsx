@@ -15,7 +15,7 @@ export function TrendingNow() {
       </div>
       <ProductCarousel
         title="Trending Now"
-        subtitle="Real-time vault intelligence"
+        subtitle="Real-time intelligence"
         products={data || []}
         isLoading={isLoading}
       />

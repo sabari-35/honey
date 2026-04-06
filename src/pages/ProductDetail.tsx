@@ -102,7 +102,7 @@ export default function ProductDetail() {
           <div className="lg:col-span-5 flex flex-col justify-center space-y-10">
             <div className="space-y-4">
               <span className="text-gold-primary text-[10px] font-black tracking-[0.5em] uppercase px-4 py-2 rounded-full border border-gold-primary/20 bg-gold-primary/5">
-                {product.category || 'Himalayan Reserve'}
+                {product.category || '100% Natural'}
               </span>
               <h1 className="font-display text-5xl md:text-7xl text-text-primary leading-[1.1] uppercase tracking-tighter">
                 {product.name}
@@ -121,31 +121,33 @@ export default function ProductDetail() {
 
             <div className="grid grid-cols-2 gap-6">
               <div className="neumorphic-inset p-6 rounded-3xl space-y-2">
-                <ShieldCheck size={20} className="text-gold-primary" />
-                <p className="text-[10px] text-text-muted uppercase font-black tracking-widest">Purity Verified</p>
-                <p className="text-xs text-text-primary font-bold">100% Raw Cold-Pressed</p>
+                <center>
+                <ShieldCheck size={20} className="text-gold-primary" /><br />
+                <p className="text-[10px] text-text-muted uppercase font-black tracking-widest">Purity Verified</p></center>
+                {/* <p className="text-xs text-text-primary font-bold">100% Raw Cold-Pressed</p> */}
               </div>
               <div className="neumorphic-inset p-6 rounded-3xl space-y-2">
-                <Star size={20} className="text-gold-primary" />
-                <p className="text-[10px] text-text-muted uppercase font-black tracking-widest">Extraction Quality</p>
-                <p className="text-xs text-text-primary font-bold">Grade A - Micro-Batch</p>
+                <center>
+                <Star size={20} className="text-gold-primary" /><br />
+                <p className="text-[10px] text-text-muted uppercase font-black tracking-widest">Extraction Quality</p></center>
+                
               </div>
             </div>
 
             <div className="space-y-6 pt-6">
-              <div className="flex items-center gap-3">
+              {/* <div className="flex items-center gap-3">
                 <div className={`w-3 h-3 rounded-full ${isOutOfStock ? 'bg-danger' : 'bg-success animate-pulse'}`} />
                 <span className={`text-[10px] uppercase font-black tracking-[0.4em] ${isOutOfStock ? 'text-danger' : 'text-success'}`}>
                    {isOutOfStock ? 'Sold Out / Manifest Sealed' : `${product.stock_quantity} units Available in the Vault`}
                 </span>
-              </div>
+              </div> */}
               <Button 
                 onClick={handleAddToCart} 
                 className="w-full h-16 text-lg tracking-widest font-black uppercase rounded-2xl"
                 disabled={isOutOfStock}
               >
                 <ShoppingBag className="mr-3" />
-                {isOutOfStock ? 'Closed Manifest' : 'Add to Vault'}
+                {isOutOfStock ? 'Closed' : 'Add to Cart'}
               </Button>
             </div>
           </div>

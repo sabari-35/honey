@@ -72,7 +72,7 @@ export default function MyOrders() {
         <div className="max-w-md mx-auto text-center neumorphic-panel p-12 rounded-[2.5rem]">
           <Package className="w-16 h-16 text-gold-primary/50 mx-auto mb-6" />
           <h1 className="font-display text-2xl text-gold-primary tracking-widest uppercase mb-4">Vault Locked</h1>
-          <p className="text-text-muted text-sm mb-8">Authentication is required to view your secure manifests.</p>
+          <p className="text-text-muted text-sm mb-8">Authentication is required.</p>
           <Button onClick={() => navigate('/login')} className="w-full h-14">Authenticate</Button>
         </div>
       </div>
@@ -94,11 +94,11 @@ export default function MyOrders() {
               <Package className="text-gold-primary" size={24} />
               <h1 className="font-display text-4xl text-text-primary tracking-widest uppercase">My Orders</h1>
             </div>
-            <p className="text-text-muted text-sm uppercase tracking-widest font-black opacity-60 ml-9">Secure Transport Manifests</p>
+            <p className="text-text-muted text-sm uppercase tracking-widest font-black opacity-60 ml-9">Secure Transport</p>
           </div>
           <div className="text-right ml-9 md:ml-0">
              <p className="text-[10px] uppercase font-bold tracking-[0.3em] text-text-muted">Active Count</p>
-             <p className="font-display text-3xl tracking-widest text-gold-primary">{myOrders.length}</p>
+             <p className="font-display text-3xl mr-[50px] tracking-widest text-gold-primary">{myOrders.length}</p>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ export default function MyOrders() {
                      
                      {/* Items List */}
                      <div className="flex-1 space-y-4">
-                       <p className="text-[10px] uppercase tracking-[0.3em] font-black text-text-secondary opacity-60 mb-4">Secured Extracts</p>
+                       <p className="text-[10px] uppercase tracking-[0.3em] font-black text-text-secondary opacity-60 mb-4">Secured</p>
                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                          {order.order_items?.map((item: any) => (
                            <div key={item.id} className="flex items-center gap-4 p-3 rounded-2xl border border-glass-border bg-surface-2/20">
@@ -179,7 +179,7 @@ export default function MyOrders() {
 
                        {['pending', 'confirmed', 'packed'].includes(order.status) && (
                          <div className="w-full h-14 rounded-2xl border border-dashed border-text-muted/30 flex items-center justify-center gap-3 text-[10px] uppercase font-black tracking-widest text-text-muted bg-surface-2/10 cursor-not-allowed">
-                           Preparing Manifest
+                           Preparing Transportation 
                          </div>
                        )}
 

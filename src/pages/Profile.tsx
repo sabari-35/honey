@@ -236,10 +236,10 @@ export default function Profile() {
             <h2 className="font-display text-xl text-text-primary tracking-widest uppercase">Personal Info</h2>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-            <Input label="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" />
+            <Input label="YOUR  FULL  NAME" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Your full name" />
             <div>
               <label className="block text-sm text-text-secondary mb-3 uppercase tracking-widest flex items-center gap-2">
-                <Phone size={14} /> Phone Number
+                YOUR PHONE NUMBER
               </label>
               <input
                 type="tel"
@@ -269,7 +269,8 @@ export default function Profile() {
               placeholder="Search for your address..."
               className="flex-1 border border-glass-border rounded-xl px-5 py-4 bg-transparent text-text-primary placeholder-text-muted outline-none focus:border-gold-primary transition-colors font-sans neumorphic-inset"
             />
-            <Button onClick={handleAddressSearch} isLoading={isSearching} variant="ghost" className="rounded-xl px-6">
+            
+            <Button onClick={handleAddressSearch} isLoading={isSearching} variant="ghost" className="rounded-xl px-6 mr-[30px] ml-[20px]">
               Search
             </Button>
           </div>
@@ -300,16 +301,22 @@ export default function Profile() {
             </div>
           )}
         </div>
-
+  <div className="flex justify-center items-center gap-4">
+          
+          <Button size="md" onClick={handleSave} isLoading={isSaving} className="gap-2">
+            <Save size={16} /> Save Profile
+          </Button>
+          
+        </div>
         {/* Delivery Partner */}
         <div className="neumorphic-panel p-8 rounded-3xl space-y-6">
           <div className="flex items-center gap-3 border-b border-glass-border pb-5">
             <Truck size={18} className="text-gold-primary" />
-            <h2 className="font-display text-xl text-text-primary tracking-widest uppercase">Partner Program</h2>
+            <h2 className="font-display text-xl text-text-primary tracking-widest uppercase">Serve As delivery partner</h2>
           </div>
           {deliveryStatus === 'none' && (
             <div className="space-y-4">
-              <p className="text-sm text-text-secondary">Earn by delivering for VRK Farms! Save your Phone/Name first, then enter your vehicle details below to request partner status.</p>
+              <p className="text-sm text-text-secondary">Earn by delivering for VRK Farms! Save your Phone/Name first, then enter your vehicle details below to request partner status. Wait for the admin verification.</p>
               <Input label="Vehicle Details" value={vehicleDetails} onChange={(e) => setVehicleDetails(e.target.value)} placeholder="e.g. Honda Activa - KA01AB1234" />
               <Button onClick={handleRequestDelivery} isLoading={isRequesting} className="w-full">Submit Request</Button>
             </div>
@@ -331,20 +338,7 @@ export default function Profile() {
         </div>
 
         {/* Actions */}
-        <div className="flex justify-center items-center gap-4">
-          {/* <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-danger hover:text-red-400 transition-colors text-sm font-medium cursor-pointer"
-          >
-            <LogOut size={16} /> Sign Out
-          </button> */}
-          <Button size="md" onClick={handleSave} isLoading={isSaving} className="gap-2">
-            <Save size={16} /> Save Profile
-          </Button>
-          {/* <Link to="/store" className="text-text-primary hover:text-gold-primary font-medium tracking-wide transition-colors uppercase text-sm">
-                        BEE FARM
-                      </Link> */}
-        </div>
+      
 
       </div>
     </div>

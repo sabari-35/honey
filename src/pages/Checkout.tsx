@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 
 type PaymentMethod = 'cod' | 'upi' | 'card' | 'whatsapp';
 
-const COD_FEE = 40; // ₹40 COD handling fee
+const COD_FEE = 30; // ₹40 COD handling fee
 const RAZORPAY_KEY = import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_placeholder';
 
 // Dynamically load Razorpay script
@@ -46,7 +46,7 @@ export default function Checkout() {
   const [whatsappNumber, setWhatsappNumber] = useState('6374241896');
 
   const subtotal = selectSubtotal(items);
-  const shipping = subtotal > 1000 ? 0 : 150;
+  const shipping = subtotal > 1000 ? 0 : 15;
   const codFee = paymentMethod === 'cod' ? COD_FEE : 0;
   const total = subtotal + shipping + codFee;
 
@@ -349,7 +349,7 @@ export default function Checkout() {
           </div>
           <div>
             <h1 className="font-display text-4xl text-text-primary uppercase tracking-widest">Secure Checkout</h1>
-            <p className="text-text-muted text-sm tracking-widest uppercase">Vault Transaction Protocol</p>
+            <p className="text-text-muted text-sm tracking-widest uppercase">UPI Transaction </p>
           </div>
         </div>
 
@@ -387,7 +387,7 @@ export default function Checkout() {
                 <h2 className="font-display text-xl text-text-primary tracking-widest uppercase">Shipping Details</h2>
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <Input label="Recipient Name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" required />
+                <Input label="Recipient Name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Full name" required /><br/>
                 <Input label="Mobile Number" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Contact number" required />
                 <div className="col-span-2">
                   <label className="block text-sm text-text-secondary mb-3 uppercase tracking-widest flex items-center gap-2">
@@ -408,7 +408,7 @@ export default function Checkout() {
             <div className="neumorphic-panel p-8 rounded-3xl space-y-6">
               <div className="flex items-center gap-3 border-b border-glass-border pb-5">
                 <CreditCard size={18} className="text-gold-primary" />
-                <h2 className="font-display text-xl text-text-primary tracking-widest uppercase">Payment Strategy</h2>
+                <h2 className="font-display text-xl text-text-primary tracking-widest uppercase">Payment Gateways</h2>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -466,7 +466,7 @@ export default function Checkout() {
                 >
                   <CheckCircle size={16} className="text-emerald-400 shrink-0 mt-0.5" />
                   <p className="text-xs text-emerald-300 leading-relaxed">
-                    Your order will only be confirmed <strong>after your payment is cryptographically verified</strong>. If payment fails, no order is created and no stock is reserved.
+                    Your order will only be confirmed <strong>after your payment is verified</strong>. If payment fails, no order is created and no stock is reserved.
                   </p>
                 </motion.div>
               )}
@@ -490,7 +490,7 @@ export default function Checkout() {
           {/* Right Column: Order Summary */}
           <div className="lg:col-span-5">
             <div className="neumorphic-panel p-8 rounded-3xl sticky top-32 space-y-8">
-              <h2 className="font-display text-2xl text-gold-primary tracking-widest border-b border-glass-border pb-6 uppercase">Order Manifest</h2>
+              <h2 className="font-display text-2xl text-gold-primary tracking-widest border-b border-glass-border pb-6 uppercase">Order Summary</h2>
 
               <div className="space-y-6 max-h-[35vh] overflow-y-auto custom-scrollbar pr-2">
                 {items.map((item) => (
@@ -633,7 +633,7 @@ function PaymentOption({ label, sublabel, icon, selected, onClick, recommended }
     >
       {recommended && (
         <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 bg-emerald-500 text-white text-[9px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest whitespace-nowrap">
-          Recommended
+          Under Production
         </span>
       )}
       <div className={selected ? 'text-gold-primary' : 'text-text-muted opacity-50'}>{icon}</div>

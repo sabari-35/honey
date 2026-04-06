@@ -49,7 +49,7 @@ export default function OrderSuccess() {
 
         <div className="space-y-4">
           <h1 className="font-display text-4xl sm:text-5xl text-text-primary uppercase tracking-[0.15em]">Order Placed Successfully</h1>
-          <p className="text-text-secondary tracking-widest uppercase text-sm">Your extract from the vault is being prepared.</p>
+          {/* <p className="text-text-secondary tracking-widest uppercase text-sm">Your extract from the vault is being prepared.</p> */}
         </div>
 
         {/* Order Card */}
@@ -60,7 +60,7 @@ export default function OrderSuccess() {
           className="neumorphic-panel p-8 rounded-3xl border border-glass-border space-y-6 max-w-md mx-auto"
         >
           <div className="flex justify-between items-center border-b border-glass-border pb-4">
-            <span className="text-text-muted text-xs uppercase tracking-widest">Protocol ID</span>
+            <span className="text-text-muted text-xs uppercase tracking-widest">Order ID</span>
             <span className="text-gold-primary font-mono font-bold">{orderNumber}</span>
           </div>
           <div className="flex justify-between items-center border-b border-glass-border pb-4">

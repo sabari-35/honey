@@ -120,7 +120,7 @@ export default function AdminDeliveries() {
     <div className="space-y-6">
       <header>
         <h1 className="text-2xl font-display text-gold-primary">Delivery Management</h1>
-        <p className="text-gray-400 text-sm mt-1">Assign orders and monitor delivery personnel</p>
+        <p className="text-gray-400 text-sm mt-1">Assign orders and monitor delivery</p>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

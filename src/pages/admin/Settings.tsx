@@ -79,7 +79,7 @@ export default function Settings() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm text-text-secondary uppercase tracking-widest mb-2 flex items-center gap-2">
-                Order Receiver WhatsApp
+                Order Receiver WhatsApp number
               </label>
               <Input 
                 value={whatsappNumber}
@@ -87,12 +87,12 @@ export default function Settings() {
                 placeholder="e.g. 6374241896"
               />
               <p className="text-xs text-text-muted mt-2 italic">
-                Customers selecting the WhatsApp payment method will be redirected to this number with their encrypted cart manifest.
+                Customers selecting the WhatsApp payment method will be redirected to this number with their encrypted cart.
               </p>
             </div>
 
             <Button onClick={handleSave} isLoading={isSaving} className="w-full mt-4">
-              <Save size={16} className="mr-2" /> Save Protocol
+              <Save size={16} className="mr-2" /> Save
             </Button>
           </div>
         </div>

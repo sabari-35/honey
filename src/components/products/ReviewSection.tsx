@@ -140,14 +140,14 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
       {/* Header & Stats */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 border-b border-glass-border pb-8">
         <div>
-          <h2 className="font-display text-4xl text-text-primary uppercase tracking-widest">Vault Feedback</h2>
+          <h2 className="font-display text-4xl text-text-primary uppercase tracking-widest">Vault Feedback</h2> <br />
           <p className="text-text-muted text-sm mt-1 uppercase tracking-widest font-black">Verified Purchase Intel</p>
         </div>
         <div className="flex items-center gap-4 neumorphic-panel px-6 py-4 rounded-3xl">
           <div className="text-3xl font-display text-gold-primary">{averageRating}</div>
           <div className="space-y-1">
             <StarRating rating={Number(averageRating)} size={14} />
-            <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold">Based on {reviews?.length || 0} manifest logs</p>
+            <p className="text-[10px] text-text-muted uppercase tracking-widest font-bold">Based on {reviews?.length || 0} review logs</p>
           </div>
         </div>
       </div>
@@ -164,7 +164,7 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
           ) : !reviews?.length ? (
             <div className="py-20 text-center neumorphic-inset rounded-[2.5rem] flex flex-col items-center justify-center opacity-40">
               <MessageSquare size={40} className="mb-4 text-text-muted" />
-              <p className="font-display tracking-[0.2em] text-lg uppercase">Zero Manifests Recorded</p>
+              <p className="font-display tracking-[0.2em] text-lg uppercase">Zero Record</p>
               <p className="text-xs text-text-muted mt-2">Become the first to verify this nectar.</p>
             </div>
           ) : (
@@ -270,10 +270,10 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
            <div className="sticky top-32 neumorphic-panel p-10 rounded-[2.5rem] border border-gold-primary/10">
               {user ? (
                 <form onSubmit={handleSubmitReview} className="space-y-6">
-                  <h3 className="font-display text-xl text-text-primary uppercase tracking-widest mb-4">Post Feedback</h3>
+                  <h3 className="font-display text-xl text-text-primary uppercase tracking-widest mb-4">Post Your Valuable Feedback</h3>
                   
                   <div className="space-y-3">
-                    <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Your Rating</p>
+                    <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Your Rating out of 5</p>
                     <div className="p-4 bg-obsidian/50 rounded-2xl border border-glass-border">
                       <StarRating 
                         rating={rating} 
@@ -285,11 +285,11 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
                   </div>
 
                   <div className="space-y-3">
-                    <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Observations</p>
+                    <p className="text-[10px] text-text-muted uppercase font-bold tracking-widest">Comments</p>
                     <textarea
                       value={comment}
                       onChange={(e) => setComment(e.target.value)}
-                      placeholder="Share your sensorial experience with this extraction..."
+                      placeholder="Share your experience with this product..."
                       className="w-full bg-obsidian/50 border border-glass-border focus:border-gold-primary/50 rounded-2xl p-4 min-h-[140px] text-text-primary placeholder:text-text-muted outline-none transition-all font-sans text-sm resize-none"
                     />
                   </div>
@@ -299,7 +299,7 @@ export function ReviewSection({ productId }: ReviewSectionProps) {
                     className="w-full h-14 font-black uppercase tracking-widest"
                     isLoading={isSubmitting}
                   >
-                    Seal Manifest
+                    Post Review
                   </Button>
                 </form>
               ) : (
