@@ -25,42 +25,113 @@ serve(async (req) => {
       replyTo: { name: "VRK Farms", email: "honey.salesplatform@gmail.com" },
     }
 
+    // Premium Obsidian & Gold Email Container Template Function
+    const wrapInPremiumContainer = (content: string, header: string) => `
+      <!DOCTYPE html>
+      <html>
+      <body style="margin:0; padding:0; background-color:#111111; font-family:'Helvetica Neue', Helvetica, Arial, sans-serif; color:#ffffff;">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color:#111111; padding: 40px 20px;">
+          <tr><td align="center">
+            <table width="600" border="0" cellspacing="0" cellpadding="0" style="background-color:#1a1a1a; border: 1px solid #333333; border-radius: 16px; overflow:hidden;">
+              <!-- Header -->
+              <tr><td style="background-color:#111111; padding: 40px 0; text-align: center; border-bottom: 1px solid #D4AF37;">
+                <h1 style="color:#D4AF37; margin:0; font-size:28px; letter-spacing:4px; text-transform:uppercase; font-weight:900;">VRK FARMS</h1>
+                <p style="color:#888888; font-size:10px; letter-spacing:3px; margin-top:8px; text-transform:uppercase;">Raw Collection</p>
+              </td></tr>
+              
+              <!-- Content Body -->
+              <tr><td style="padding: 40px 40px;">
+                <h2 style="color:#ffffff; font-size:22px; margin-top:0; margin-bottom:24px; font-weight:300;">${header}</h2>
+                ${content}
+              </td></tr>
+              
+              <!-- Footer -->
+              <tr><td style="background-color:#111111; padding: 30px; text-align: center; border-top: 1px solid #222222;">
+                <p style="color:#666666; font-size:12px; line-height:1.5; margin:0;">
+                  VRK Farms Luxury Extractions<br>
+                  © ${new Date().getFullYear()} The Honey Platform. All Rights Reserved.
+                </p>
+                <div style="margin-top:15px;">
+                  <a href="https://vrkfarms.com" style="color:#D4AF37; text-decoration:none; font-size:12px; letter-spacing:1px; text-transform:uppercase;">Visit Website</a>
+                </div>
+              </td></tr>
+            </table>
+          </td></tr>
+        </table>
+      </body>
+      </html>
+    `;
+
     // Process intent-driven templates
     if (template === 'order_placed') {
       emailOptions.to = [{ email: payload.customerEmail, name: payload.customerName }]
       emailOptions.subject = `Your VRK Farms Order Confirmed #${payload.orderId}`
-      emailOptions.htmlContent = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 10px;">
-          <h2 style="color: #D4AF37;">Thank you for your order, ${payload.customerName}!</h2>
-          <p>We've successfully received your order <strong>#${payload.orderId}</strong> for <strong>₹${payload.orderTotal}</strong>.</p>
-          <p>The vault keepers are currently manifesting your items. You will receive another update once a delivery partner is assigned.</p>
-          <br/>
-          <p style="color: #666; font-size: 12px;">VRK Farms Raw Collection<br/>Track your order on the website dashboard.</p>
-        </div>
-      `
+      emailOptions.htmlContent = wrapInPremiumContainer(`
+        <p style="color:#cccccc; line-height:1.6; font-size:15px; margin-bottom:20px;">
+          We have successfully received your order <strong>#${payload.orderId}</strong>. Your pure, cold-pressed honey is currently being secured from our vault.
+        </p>
+        
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:30px; margin-bottom:30px; background-color:#111111; border: 1px solid #333333; border-radius: 8px;">
+          <tr><td style="padding: 20px;">
+            <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 10px 0;">Total Extracted Value</p>
+            <p style="color:#D4AF37; font-size:32px; font-weight:bold; margin:0;">₹${payload.orderTotal}</p>
+          </td></tr>
+        </table>
+
+        <p style="color:#cccccc; line-height:1.6; font-size:15px;">
+          You will receive another update immediately once a delivery partner intercepts your order. You can monitor the live GPS telemetry directly through your tracking dashboard.
+        </p>
+      `, `Thank you, ${payload.customerName}.`)
+      
     } else if (template === 'delivery_assigned') {
       emailOptions.to = [{ email: payload.customerEmail, name: payload.customerName }]
       emailOptions.subject = `Partner Assigned for Order #${payload.orderId}`
-      emailOptions.htmlContent = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 10px;">
-          <h2 style="color: #D4AF37;">Great news, ${payload.customerName}!</h2>
-          <p>Your order <strong>#${payload.orderId}</strong> has been assigned to our trusted delivery partner: <strong>${payload.driverName}</strong>.</p>
-          <p>They are heading your way in a <strong>${payload.driverVehicle}</strong>.</p>
-          <p>You can track their live GPS location directly on your VRK Farms Dashboard!</p>
-        </div>
-      `
+      emailOptions.htmlContent = wrapInPremiumContainer(`
+        <p style="color:#cccccc; line-height:1.6; font-size:15px; margin-bottom:20px;">
+          Your order <strong>#${payload.orderId}</strong> has just been dispatched. A certified VRK Farms partner is en route.
+        </p>
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:30px; margin-bottom:30px; background-color:#151515; border-left: 3px solid #D4AF37; padding: 20px;">
+          <tr>
+            <td style="padding-bottom:10px;">
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 5px 0;">Assigned Partner</p>
+              <p style="color:#ffffff; font-size:18px; margin:0;">${payload.driverName}</p>
+            </td>
+          </tr>
+          <tr>
+            <td>
+              <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:15px 0 5px 0;">Transport Matrix</p>
+              <p style="color:#ffffff; font-size:16px; margin:0; opacity:0.9;">${payload.driverVehicle}</p>
+            </td>
+          </tr>
+        </table>
+
+        <p style="color:#cccccc; line-height:1.6; font-size:15px;">
+          Lock in on the Live Map via your dashboard to track you r partner block by block.
+        </p>
+      `, `Manifest Assigned.`)
+      
     } else if (template === 'driver_registered') {
       emailOptions.to = [{ email: payload.driverEmail, name: payload.driverName }]
       emailOptions.bcc = [{ email: "admin@vrkfarms.com", name: "Admin Vault" }]
       emailOptions.subject = `Welcome to the VRK Delivery Fleet, ${payload.driverName}!`
-      emailOptions.htmlContent = `
-        <div style="font-family: sans-serif; max-width: 600px; margin: auto; padding: 20px; border: 1px solid #e5e5e5; border-radius: 10px;">
-          <h2 style="color: #D4AF37;">Welcome to the Vault Team, ${payload.driverName}!</h2>
-          <p>Your delivery partner profile has been successfully registered.</p>
-          <p>Admin has been notified to verify your vehicle details (<strong>${payload.vehicleDetails}</strong>).</p>
-          <p>Login to the Delivery Dashboard to begin accepting orders and tracking your metrics!</p>
-        </div>
-      `
+      emailOptions.htmlContent = wrapInPremiumContainer(`
+        <p style="color:#cccccc; line-height:1.6; font-size:15px; margin-bottom:20px;">
+          Your delivery partner profile has been successfully integrated into the VRK mainframe. Welcome to the elite fleet.
+        </p>
+
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top:30px; margin-bottom:30px; background-color:#111111; border: 1px solid #333333; border-radius: 8px;">
+          <tr><td style="padding: 20px;">
+            <p style="color:#888888; font-size:11px; text-transform:uppercase; letter-spacing:2px; margin:0 0 10px 0;">Registered Vehicle</p>
+            <p style="color:#D4AF37; font-size:20px; font-weight:bold; margin:0;">${payload.vehicleDetails}</p>
+          </td></tr>
+        </table>
+
+        <p style="color:#cccccc; line-height:1.6; font-size:15px;">
+          Admin has been notified to verify your chassis. Login to the Delivery Dashboard to intercept your first drop.
+        </p>
+      `, `Clearance Granted, ${payload.driverName}.`)
+      
     } else {
       throw new Error(`Unknown email template requested: ${template}`)
     }

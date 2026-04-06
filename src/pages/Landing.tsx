@@ -29,12 +29,15 @@ export default function Landing() {
   return (
     <div className="w-full">
       {/* HERO SECTION */}
-      <section className="relative min-h-[90vh] flex items-center justify-center overflow-hidden">
+      <section 
+        className="relative min-h-[90vh] flex items-center justify-center overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: 'url(/landing-bg.png)' }}
+      >
         {/* Background Effects */}
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,var(--surface-2)_0%,var(--obsidian)_100%)] opacity-80" />
+          <div className="absolute inset-0 bg-obsidian/70 backdrop-blur-[2px]" />
           {/* Animated aurora glow */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-primary/10 blur-[120px] rounded-full animate-pulse pointer-events-none" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gold-primary/20 blur-[120px] rounded-full animate-pulse pointer-events-none" />
         </div>
 
         <div className="relative z-10 max-w-5xl mx-auto px-4 text-center">

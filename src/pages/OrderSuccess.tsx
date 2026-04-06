@@ -18,9 +18,12 @@ export default function OrderSuccess() {
   if (!orderNumber) return null;
 
   return (
-    <div className="min-h-screen bg-obsidian pt-28 pb-16 flex items-center justify-center px-4">
-      <div className="max-w-2xl w-full text-center space-y-12">
-        
+    <div 
+      className="min-h-screen pt-28 pb-16 flex items-center justify-center px-4 relative bg-cover bg-center bg-fixed"
+      style={{ backgroundImage: 'url(/success-bg.jpg)' }}
+    >
+      <div className="absolute inset-0 bg-obsidian/80 backdrop-blur-[3px] pointer-events-none" />
+      <div className="max-w-2xl w-full text-center space-y-12 relative z-10">
         {/* Animated Checkmark */}
         <motion.div
           initial={{ scale: 0, opacity: 0 }}
