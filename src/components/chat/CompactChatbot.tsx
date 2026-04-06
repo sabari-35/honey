@@ -13,6 +13,11 @@ interface Message {
   sender: 'user' | 'bot';
   timestamp: Date;
   isTyping?: boolean;
+  paymentRequest?: {
+    productId: string;
+    quantity: number;
+    productName?: string;
+  };
 }
 
 const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
@@ -67,19 +72,20 @@ AUTONOMOUS COD ORDER PLACEMENT [CRITICAL]
 =========================================================
 If a user explicitly asks you to **order** an item FOR THEM (e.g., "place a cod order for 2 raw honey"), you have the power to instantly execute the transaction for them behind the scenes.
 
-**HOW TO PLACE AN ORDER FOR THE USER:**
-If you clearly negotiate the product they want and the quantity, instead of replying with normal text, you MUST reply strictly with this JSON Action Block (and absolutely nothing else):
+**HOW TO NEGOTIATE AN ORDER FOR THE USER:**
+If you clearly negotiate the product they want and the quantity, instead of directly placing the order, you MUST ask them how they want to pay by replying strictly with this JSON Action Block (and absolutely nothing else):
 
 {
-  "action": "CREATE_COD_ORDER",
+  "action": "REQUEST_PAYMENT_SELECTION",
   "product_id": "<EXACT UUID OF THE PRODUCT FROM THE CATALOG>",
-  "quantity": <NUMBER OF ITEMS>
+  "quantity": <NUMBER OF ITEMS>,
+  "product_name": "<NAME OF PRODUCT>"
 }
 
 **RULES FOR ORDERING:**
 1. Wait until you know the exact product and quantity they want. If they just say "order honey", ask them "Which type of honey and how many jars?"
 2. If the user is Guest, politely tell them "You must be logged into the Vault to place automated orders." Do not emit the JSON.
-3. If they confirm the quantity, DO NOT SAY ANYTHING ELSE. Just emit the JSON block perfectly. Our system will intercept the JSON, securely route their order, and take them to their tracking ledger.
+3. If they confirm the quantity, emit the JSON block perfectly. Our system will intercept the JSON and render interactive Payment Selection buttons inside the chat! Do not emit standard text with the JSON.
 
 =========================================================
 GENERAL RULES
@@ -103,7 +109,7 @@ const ERROR_MESSAGES = {
   DEFAULT: "⚠️ I am currently unavailable. Please contact support via WhatsApp +91 6374241896."
 };
 
-const MessageBubble = memo(({ message }: { message: Message }) => {
+const MessageBubble = memo(({ message, onPaymentSelect }: { message: Message, onPaymentSelect?: (method: 'COD'|'ONLINE', productId: string, quantity: number) => void }) => {
   const isUser = message.sender === 'user';
   const [displayedText, setDisplayedText] = useState('');
   const [isTypingComplete, setIsTypingComplete] = useState(false);
@@ -183,6 +189,37 @@ const MessageBubble = memo(({ message }: { message: Message }) => {
             </div>
           )}
         </div>
+          
+        {/* Interactive Payment Component */}
+        {message.paymentRequest && !message.isTyping && onPaymentSelect && (
+          <div className="mt-4 pt-3 border-t border-glass-border">
+            <p className="text-xs text-text-secondary uppercase tracking-widest mb-3">Select Secure Checkout Method:</p>
+            <div className="flex flex-col gap-2">
+              <button 
+                onClick={() => onPaymentSelect('ONLINE', message.paymentRequest!.productId, message.paymentRequest!.quantity)}
+                className="w-full bg-gold-primary text-black py-2.5 rounded-xl font-bold text-sm tracking-widest uppercase hover:bg-gold-light transition-colors"
+                style={{ fontFamily: "'Space Grotesk', sans-serif" }}
+              >
+                Pay Securely Online
+              </button>
+              <button 
+                onClick={() => onPaymentSelect('COD', message.paymentRequest!.productId, message.paymentRequest!.quantity)}
+                className="w-full bg-surface-2 text-text-primary border border-glass-border py-2.5 rounded-xl font-medium text-xs tracking-widest uppercase hover:border-gold-primary/30 transition-colors"
+              >
+                Cash on Delivery (+₹40)
+              </button>
+              <a
+                href={`https://wa.me/916374241896?text=${encodeURIComponent(`Hi VRK Farms! I want to order ${message.paymentRequest!.quantity}x product via WhatsApp.`)}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#25D366] border border-[#25D366]/30 py-2.5 rounded-xl font-medium text-xs tracking-widest uppercase hover:bg-[#25D366]/20 transition-colors"
+              >
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                Order on WhatsApp
+              </a>
+            </div>
+          </div>
+        )}
       </div>
 
       {isUser && (
@@ -341,9 +378,22 @@ export default function CompactChatbot() {
           total_price: subtotal
         });
 
+        // Fire confirmation email (non-blocking)
+        supabase.functions.invoke('brevo-email', {
+          body: {
+            template: 'order_placed',
+            payload: {
+              customerName: (profile as any).full_name || 'Valued Customer',
+              customerEmail: (profile as any).email || user.email,
+              orderId: order.order_number,
+              orderTotal: total
+            }
+          }
+        }).catch(console.error);
+
         toast.success("AI Agent successfully placed your COD order!");
         setTimeout(() => navigate('/orders'), 2000);
-        return `🟢 Order Placed Automatically! \n\nI just executed the transaction for ${actionData.quantity}x **${targetProduct.name}**. I am redirecting you back to your tracking ledger securely! Enjoy!`;
+        return `🟢 Order Placed Automatically! \n\nI just executed the transaction for ${actionData.quantity}x **${targetProduct.name}**. A confirmation email has been sent! Redirecting to your tracking ledger...`;
       }
     } catch (e) {
       console.error(e);
@@ -379,15 +429,18 @@ export default function CompactChatbot() {
     let finalBotText = aiText;
     
     // Check for JSON Agent Action
-    if (aiText.includes('CREATE_COD_ORDER')) {
+    let specialPaymentRequest: any = null;
+    if (aiText.includes('REQUEST_PAYMENT_SELECTION') || aiText.includes('CREATE_COD_ORDER')) {
       try {
         const startIndex = aiText.indexOf('{');
         const endIndex = aiText.lastIndexOf('}');
         if (startIndex !== -1 && endIndex !== -1) {
           const cleanJson = aiText.substring(startIndex, endIndex + 1);
-          const actionReply = await handleBotOrderAction(cleanJson);
-          if (actionReply) {
-            finalBotText = actionReply;
+          const parsed = JSON.parse(cleanJson);
+          
+          if (parsed.action === 'REQUEST_PAYMENT_SELECTION' || parsed.action === 'CREATE_COD_ORDER') {
+            finalBotText = `Please finalize your order for ${parsed.quantity}x **${parsed.product_name || 'Item'}**. Choose how you want to settle the transaction via the vault encrypted channels below:`;
+            specialPaymentRequest = { productId: parsed.product_id, quantity: parsed.quantity, productName: parsed.product_name };
           }
         }
       } catch (e) {
@@ -395,7 +448,10 @@ export default function CompactChatbot() {
       }
     }
 
-    const typingMessage: Message = { id: (Date.now() + 1).toString(), text: finalBotText, sender: 'bot', timestamp: new Date(), isTyping: true };
+    const typingMessage: Message = { 
+      id: (Date.now() + 1).toString(), text: finalBotText, sender: 'bot', timestamp: new Date(), isTyping: true,
+      paymentRequest: specialPaymentRequest
+    };
     setMessages(prev => [...prev, typingMessage]);
     setIsLoading(false);
 
@@ -408,6 +464,24 @@ export default function CompactChatbot() {
     if (!recognitionRef.current) return alert('Speech recognition unsupported.');
     if (isListening) { recognitionRef.current.stop(); setIsListening(false); } 
     else { recognitionRef.current.start(); setIsListening(true); }
+  };
+
+  const handlePaymentSelect = async (method: 'COD' | 'ONLINE', productId: string, quantity: number) => {
+    if (method === 'COD') {
+      setIsLoading(true);
+      const fakeJson = JSON.stringify({ action: "CREATE_COD_ORDER", product_id: productId, quantity });
+      const actionReply = await handleBotOrderAction(fakeJson);
+      
+      const replyMessage: Message = { id: Date.now().toString(), text: actionReply || "Network Vault Failure", sender: 'bot', timestamp: new Date(), isTyping: false };
+      setMessages(prev => [...prev, replyMessage]);
+      setIsLoading(false);
+    } else {
+      const targetProduct = catalog.find(p => p.id === productId);
+      if (targetProduct) {
+        navigate('/checkout', { state: { directBuyProduct: targetProduct, quantity } });
+        setIsOpen(false);
+      }
+    }
   };
 
   if (!isOpen) {
@@ -461,7 +535,7 @@ export default function CompactChatbot() {
             <div className="flex-1 overflow-y-auto custom-scrollbar p-5 relative">
               <div className="space-y-1 pb-4">
                 {messages.map((message) => (
-                  <MessageBubble key={message.id} message={message} />
+                  <MessageBubble key={message.id} message={message} onPaymentSelect={handlePaymentSelect} />
                 ))}
                 
                 {isLoading && (
