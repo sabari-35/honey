@@ -139,40 +139,36 @@ export default function Checkout() {
       pendingOrderId = order.id;
       setPaymentStep('gateway');
 
+      // Attempt server-side Razorpay order creation via Supabase Edge Function
+      let razorpayOrderId: string | undefined = undefined;
+      try {
+        const { data: rzpOrder, error: fnError } = await supabase.functions.invoke('create-razorpay-order', {
+          body: {
+            amount: Math.round(total * 100),
+            currency: 'INR',
+            receipt: order.order_number,
+            notes: { order_id: order.id, order_number: order.order_number }
+          }
+        });
+        if (!fnError && rzpOrder?.id) {
+          razorpayOrderId = rzpOrder.id;
+        }
+      } catch (fnErr) {
+        console.warn('Edge function create-razorpay-order not active, using client checkout:', fnErr);
+      }
+
       // Step 2: Open Razorpay
-      const options = {
+      const options: any = {
         key: RAZORPAY_KEY,
         amount: Math.round(total * 100), // paise
         currency: 'INR',
         name: 'VRK Farms Vault',
         description: `Order ${order.order_number}`,
-        image: '/logo.png',
+        image: '/favicon.svg',
         notes: { order_id: order.id, order_number: order.order_number },
         prefill: { name: fullName, contact: phone, email: user.email },
         theme: { color: '#D4AF37' },
-        config: {
-          display: {
-            // Show UPI first (includes GPay, PhonePe, Paytm)
-            preferences: { show_default_blocks: false },
-            blocks: {
-              banks: {
-                name: 'Pay via UPI',
-                instruments: [
-                  { method: 'upi', flows: ['collect', 'intent', 'qr'] },
-                ],
-              },
-              cards: {
-                name: 'Pay via Cards',
-                instruments: [{ method: 'card' }],
-              },
-              netbanking: {
-                name: 'Net Banking',
-                instruments: [{ method: 'netbanking' }],
-              },
-            },
-            sequence: ['block.banks', 'block.cards', 'block.netbanking'],
-          },
-        },
+        ...(razorpayOrderId ? { order_id: razorpayOrderId } : {}),
 
         handler: async (response: any) => {
           // Payment SUCCESS — verify and confirm the order
@@ -181,11 +177,11 @@ export default function Checkout() {
             const { data: result, error: rpcError } = await supabase.rpc('confirm_online_payment', {
               p_order_id: pendingOrderId,
               p_razorpay_payment_id: response.razorpay_payment_id,
-              p_razorpay_order_id: response.razorpay_order_id || '',
+              p_razorpay_order_id: response.razorpay_order_id || razorpayOrderId || '',
               p_razorpay_signature: response.razorpay_signature || '',
             });
 
-            if (rpcError || !result?.success) throw new Error('Payment verification failed.');
+            if (rpcError || !result?.success) throw new Error(rpcError?.message || result?.error || 'Payment verification failed.');
 
             // Deduct stock
             for (const item of items) {

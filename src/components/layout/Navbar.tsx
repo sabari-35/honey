@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ShoppingBag, User, Menu, LogOut, ShieldAlert, X, Package } from 'lucide-react';
+import { ShoppingBag, User, Menu, LogOut, ShieldAlert, X, Package, Sun, Moon } from 'lucide-react';
 import { useCartStore } from '../../store/cartStore';
 import { useUiStore } from '../../store/uiStore';
 import { useAuthStore } from '../../store/authStore';
@@ -13,7 +13,7 @@ export default function Navbar() {
   
   const items = useCartStore(state => state.items);
   const totalItems = items.reduce((t, i) => t + (Number(i.quantity) || 0), 0);
-  const setCartOpen = useUiStore(state => state.setCartOpen);
+  const { setCartOpen, theme, toggleTheme } = useUiStore();
   const { user, profile } = useAuthStore();
   const navigate = useNavigate();
 
@@ -77,6 +77,15 @@ export default function Navbar() {
           {/* Action Icons */}
           <div className="flex items-center gap-2 sm:gap-6 flex-1 justify-end">
             
+            {/* Theme Toggle */}
+            <button
+              onClick={toggleTheme}
+              className="w-10 h-10 rounded-full neumorphic-inset flex items-center justify-center text-text-muted hover:text-gold-primary transition-all duration-300 transform active:scale-95 bg-white/5"
+              title={`Switch to ${theme === 'light' ? 'Dark' : 'Light'} Mode`}
+            >
+              {theme === 'light' ? <Moon size={18} /> : <Sun size={18} />}
+            </button>
+
             {/* Admin Badge */}
             {user && profile?.role === 'admin' && (
               <Link to="/admin" className="hidden md:flex items-center gap-2 bg-gold-primary/10 border border-gold-primary/30 text-gold-primary text-[10px] uppercase tracking-widest px-3 py-2 rounded-full hover:bg-gold-primary/20 transition-all font-black">
@@ -116,15 +125,6 @@ export default function Navbar() {
                   <User size={20} className="text-text-primary group-hover:text-gold-primary transition-colors" />
                   <span className="text-[10px] uppercase font-bold text-text-muted mt-1">Profile</span>
                 </Link>
-                {/* {user && (
-              <button
-                onClick={() => { handleLogout(); setMobileMenuOpen(false); }}
-                disabled={isLoggingOut}
-                className="w-full flex items-center gap-3 px-4 py-4 text-lg font-display text-danger tracking-widest uppercase hover:bg-glass-border/10 rounded-2xl transition-colors disabled:opacity-50"
-              >
-                <LogOut size={20} /> 
-              </button>
-            )} */}
                 <button 
                   onClick={handleLogout} 
                   disabled={isLoggingOut}

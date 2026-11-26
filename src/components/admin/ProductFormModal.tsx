@@ -14,6 +14,7 @@ const productSchema = z.object({
   slug: z.string().min(1, 'Slug is required').regex(/^[a-z0-9-]+$/, 'Slug must be lowercase letters, numbers, and hyphens only'),
   description: z.string().optional(),
   price: z.number().min(0, 'Price must be positive'),
+  discount_percent: z.number().min(0).max(100).default(0),
   stock_quantity: z.number().min(0, 'Stock must be positive'),
   low_stock_threshold: z.number().min(0),
   is_active: z.boolean().default(true),
@@ -41,7 +42,7 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
   const { register, handleSubmit, reset, setValue, watch, formState: { errors } } = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
-      name: '', slug: '', description: '', price: 0,
+      name: '', slug: '', description: '', price: 0, discount_percent: 0,
       stock_quantity: 0, low_stock_threshold: 5, is_active: true,
     }
   });
@@ -57,13 +58,19 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
 
   useEffect(() => {
     if (product) {
+      // Calculate active discount if compare_price is set
+      const initialPrice = product.compare_price || product.price;
+      const discount = product.compare_price 
+        ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100) 
+        : 0;
+
       reset({
         name: product.name, slug: product.slug, description: product.description,
-        price: product.price, stock_quantity: product.stock_quantity,
+        price: initialPrice, discount_percent: discount, stock_quantity: product.stock_quantity,
         low_stock_threshold: product.low_stock_threshold, is_active: product.is_active,
       });
     } else {
-      reset({ name: '', slug: '', description: '', price: 0, stock_quantity: 0, low_stock_threshold: 5, is_active: true });
+      reset({ name: '', slug: '', description: '', price: 0, discount_percent: 0, stock_quantity: 0, low_stock_threshold: 5, is_active: true });
     }
     setImageFile(null);
   }, [product, reset, isOpen]);
@@ -84,7 +91,22 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
         }
       }
 
-      const payload = { ...data, images: imageUrl ? [{ url: imageUrl }] : [] };
+      // Calculate final prices
+      const hasDiscount = data.discount_percent > 0;
+      const finalPrice = hasDiscount 
+        ? data.price * (1 - data.discount_percent / 100)
+        : data.price;
+      const comparePrice = hasDiscount ? data.price : null;
+
+      const payload = { 
+        ...data, 
+        price: finalPrice,
+        compare_price: comparePrice,
+        images: imageUrl ? [{ url: imageUrl }] : [] 
+      };
+      
+      // Remove local UI field before sending to DB
+      delete (payload as any).discount_percent;
 
       if (product?.id) {
         const { error } = await supabase.from('products').update(payload).eq('id', product.id);
@@ -119,19 +141,22 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="p-8 space-y-6">
+        <form onSubmit={handleSubmit((data) => mutation.mutate(data))} className="p-8 space-y-6 text-text-primary">
           <div className="grid grid-cols-2 gap-6">
             <Input label="Product Name" {...register('name')} error={errors.name?.message} placeholder="e.g. Wild Forest Honey" />
             <div>
               <Input label="URL Slug (auto-generated)" {...register('slug')} error={errors.slug?.message} placeholder="e.g. wild-forest-honey-a1b2" />
               <p className="text-xs text-text-muted mt-1 ml-1">Auto-filled from name. Edit only if needed.</p>
             </div>
+            
             <Input label="Price (₹)" type="number" {...register('price', { valueAsNumber: true })} error={errors.price?.message} />
+            <Input label="Discount (%)" type="number" {...register('discount_percent', { valueAsNumber: true })} error={errors.discount_percent?.message} />
+
             <Input label="Stock Units" type="number" {...register('stock_quantity', { valueAsNumber: true })} error={errors.stock_quantity?.message} />
             <Input label="Low Stock Alert At" type="number" {...register('low_stock_threshold', { valueAsNumber: true })} error={errors.low_stock_threshold?.message} />
 
             <div className="col-span-2">
-              <label className="block text-sm text-text-secondary mb-3 uppercase tracking-widest">Description</label>
+              <label className="block text-sm text-text-secondary mb-3 uppercase tracking-widest font-bold">Description</label>
               <textarea
                 className="w-full border border-glass-border rounded-xl px-5 py-4 bg-transparent text-text-primary focus:border-gold-primary outline-none neumorphic-inset min-h-[120px] resize-y"
                 placeholder="Describe the product — taste, origin, health benefits..."
@@ -140,7 +165,7 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm text-text-secondary mb-3 uppercase tracking-widest">Product Image</label>
+              <label className="block text-sm text-text-secondary mb-3 uppercase tracking-widest font-bold">Product Image</label>
               <div className="border border-dashed border-glass-border rounded-2xl p-10 flex flex-col items-center justify-center text-text-muted neumorphic-inset relative cursor-pointer hover:border-gold-primary hover:text-gold-primary transition-colors">
                 <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={(e) => setImageFile(e.target.files?.[0] || null)} />
                 <UploadCloud size={36} className="mb-3" />
@@ -148,9 +173,9 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
               </div>
             </div>
 
-            <div className="col-span-2 flex items-center gap-4 bg-[#1A1A1E] p-5 rounded-2xl neumorphic-panel">
+            <div className="col-span-2 flex items-center gap-4 bg-white/5 p-5 rounded-2xl neumorphic-panel">
               <input type="checkbox" id="isActive" {...register('is_active')} className="w-5 h-5 accent-gold-primary cursor-pointer" />
-              <label htmlFor="isActive" className="text-text-primary text-sm cursor-pointer uppercase tracking-widest">Active — Visible to customers on shop page</label>
+              <label htmlFor="isActive" className="text-text-primary text-sm cursor-pointer uppercase tracking-widest font-bold">Active — Visible to customers on shop page</label>
             </div>
           </div>
 
@@ -165,3 +190,4 @@ export default function ProductFormModal({ isOpen, onClose, product }: Props) {
     </div>
   );
 }
+

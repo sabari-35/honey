@@ -113,8 +113,8 @@ export function ProductCard({ product: initialProduct }: ProductCardProps) {
           </span>
         )}
         {product.compare_price > product.price && (
-          <span className="absolute top-4 right-4 bg-danger text-white text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-widest">
-            Sale
+          <span className="absolute top-4 right-4 bg-danger text-white text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest shadow-lg shadow-danger/20">
+            {Math.round(((product.compare_price - product.price) / product.compare_price) * 100)}% OFF
           </span>
         )}
         {isOutOfStock && (

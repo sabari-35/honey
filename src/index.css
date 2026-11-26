@@ -23,6 +23,20 @@
     background-color: var(--bg-base);
   }
 
+  :root.light {
+    --gold-primary: #FB5B00; /* Vibrant Orange for Light Mode */
+    --gold-light: #FF8235;
+    --gold-glow: rgba(251, 91, 0, 0.2);
+    
+    --bg-base: #F0F0F4;
+    --shadow-light: #FFFFFF;
+    --shadow-dark: #D1D9E6;
+    
+    --text-primary: #1A1A1E;
+    --text-secondary: #4B5563;
+    --text-muted: #9CA3AF;
+  }
+
   body {
     background-color: var(--bg-base);
     color: var(--text-primary);
